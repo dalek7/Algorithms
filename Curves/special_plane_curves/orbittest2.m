@@ -7,7 +7,9 @@
 clc; clear; close all;
 theta=0:0.05:2*pi;
 
-%% Figure 1
+%% Figure 1 - Epitrochoid
+% https://en.wikipedia.org/wiki/Epitrochoid
+
 r1 = exp(i*theta);
 R = r1;
 grad1 = R(2) - R(1);
@@ -23,7 +25,9 @@ h= quiver(Rx(1),Ry(1), real(grad1), imag(grad1),3,'r');
 adjust_quiver_arrowhead_size(h, 6);
 axis equal; grid on;
 title('r=e^{j\theta}'); %Epitrochoid
-%% Figure 2
+
+%% Figure 2 - Hypocycloid
+% https://en.wikipedia.org/wiki/Hypocycloid
 
 r1 = exp(i*theta);
 r2 = exp(i*-1*theta);  % Hypocycloid
@@ -44,6 +48,8 @@ title('r=e^{j\theta}+0.5*e^{-j\theta}'); %Epitrochoid
 axis([-1.7 1.7 -1.5 1.5]);
 
 %% Figure 3 - Limacon & Cardioid
+% https://en.wikipedia.org/wiki/Lima%C3%A7on
+% http://mathworld.wolfram.com/Limacon.html
 
 r1 = exp(i*theta);
 r2 = exp(i*2*theta);  % Hypocycloid
@@ -65,6 +71,7 @@ axis([-2 2.5 -2 2]);
 
 
 %% Figure 4 - Petal Curve
+% https://en.wikipedia.org/wiki/Rose_(mathematics)
 
 r1 = exp(i*-1*theta);
 r2 = exp(i*2*theta);  % Hypocycloid
