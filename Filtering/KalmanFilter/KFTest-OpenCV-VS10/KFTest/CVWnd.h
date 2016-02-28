@@ -7,10 +7,10 @@
 // CVWnd
 #include "opencv2/opencv.hpp"
 //#pragma comment (lib, "cv.lib")
-#pragma comment (lib, "opencv_core248.lib")
-#pragma comment (lib, "opencv_flann248.lib")
-#pragma comment (lib, "opencv_highgui248.lib")
-#pragma comment (lib, "opencv_video248.lib")
+#pragma comment (lib, "opencv_core2410.lib")
+#pragma comment (lib, "opencv_flann2410.lib")
+#pragma comment (lib, "opencv_highgui2410.lib")
+#pragma comment (lib, "opencv_video2410.lib")
 
 using namespace std;
 using namespace cv;
