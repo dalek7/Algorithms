@@ -165,6 +165,7 @@ protected:
 // Implementation
 protected:
 	DECLARE_MESSAGE_MAP()
+public:
 };
 
 CAboutDlg::CAboutDlg() : CDialogEx(CAboutDlg::IDD)
@@ -206,6 +207,3 @@ void CKFTestApp::SaveCustomState()
 }
 
 // CKFTestApp message handlers
-
-
-

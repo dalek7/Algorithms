@@ -120,3 +120,17 @@ void CKFTestView::OnBnClickedButton1()
 	//pWnd1->Init();
 	pWnd1->InitKF();
 }
+
+
+BOOL CKFTestView::PreTranslateMessage(MSG* pMsg)
+{
+	if(pMsg->message == WM_KEYDOWN) 
+    {             
+		if(pMsg->wParam==32)
+		{
+			OnBnClickedButton1();
+		}
+	}
+
+	return CFormView::PreTranslateMessage(pMsg);
+}

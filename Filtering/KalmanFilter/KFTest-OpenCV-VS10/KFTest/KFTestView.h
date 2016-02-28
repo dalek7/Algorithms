@@ -56,6 +56,7 @@ public:
 	afx_msg void OnBnClickedButton1();
 	CSliderCtrl m_sld_vel;
 	CStatic m_info1;
+	virtual BOOL PreTranslateMessage(MSG* pMsg);
 };
 
 #ifndef _DEBUG  // debug version in KFTestView.cpp
