@@ -1,0 +1,7 @@
+# A list of point clouds to try aligning
+../../res/template_alignment/object_template_0.pcd
+../../res/template_alignment/object_template_1.pcd
+../../res/template_alignment/object_template_2.pcd
+../../res/template_alignment/object_template_3.pcd
+../../res/template_alignment/object_template_4.pcd
+../../res/template_alignment/object_template_5.pcd
