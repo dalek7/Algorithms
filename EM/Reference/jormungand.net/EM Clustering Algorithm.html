@@ -1,0 +1,838 @@
+
+<!-- saved from url=(0039)http://jormungand.net/projects/misc/em/ -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+    <link rel="stylesheet" type="text/css" href="./EM Clustering Algorithm_files/j3.css">
+    <title>EM Clustering Algorithm</title>
+
+<script>
+// K-Means & EM Clustering
+// (c) 2010 chris@jormungand.net
+
+
+// v2 and m22 are 2d vectors and matrices.
+// We define some basic linear algebra operations here.
+
+function v2_rand() { return [1-2*Math.random(), 1-2*Math.random()]; }
+function v2_zero() { return [0,0]; }
+function v2_add_v2(a,b) { return [a[0]+b[0],a[1]+b[1]]; }
+function v2_addto_v2(a,b) { b[0] += a[0]; b[1] += a[1]; }
+function v2_sub_v2(a,b) { return [a[0]-b[0],a[1]-b[1]]; }
+function v2_dot_v2(a,b) { return a[0]*b[0]+a[1]*b[1]; }
+function v2_len(a) { return Math.sqrt(a[0]*a[0]+a[1]*a[1]); }
+function v2_dist_v2(a,b) {
+  var dx = a[0]-b[0];
+  var dy = a[1]-b[1];
+  return Math.sqrt(dx*dx+dy*dy);
+}
+
+// 2x2 matrix stored in a 4-element array, column major.
+// [ 0 2 ]
+// [ 1 3 ]
+
+function m22_ident() { return [1, 0, 0, 1]; }
+
+function v2_mul_m22(v,m) { return [v[0]*m[0]+v[1]*m[2], v[0]*m[1]+v[1]*m[3]]; }
+
+function m22_mul_m22(m,n) {
+  return [m[0]*n[0]+m[1]*n[2],
+          m[0]*n[1]+m[1]*n[3],
+          m[2]*n[0]+m[3]*n[2],
+          m[2]*n[1]+m[3]*n[3]];
+}
+function m22_transpose(m) { return [m[0], m[2], m[1], m[3]]; }
+
+function m22_det(m) { return m[0]*m[3]-m[1]*m[2]; }
+
+function m22_invert(m) {
+  var d = m22_det(m);
+  return [m[3]/d, -m[1]/d, -m[2]/d, m[0]/d];
+}
+
+// 2x2 Cholesky Decomposition.  A trick for drawing ellipses
+function m22_chol(m) {
+  var sra = Math.sqrt(m[0]);
+  return [sra,0,m[1]/sra,Math.sqrt(m[3]-m[1]*m[1]/m[0])];
+}
+
+function draw_lineish(start, end, size, num) {
+  
+
+
+}
+
+function random_squares(n,m) {
+  var out = [];
+  for(var ii = 0; ii < n; ++ii) {
+    var x = 1.5*(Math.random()-0.5);
+    var y = 1.5*(Math.random()-0.5);
+    for(var jj = 0; jj < m; ++jj) {
+      var dx = 0.5*(Math.random()-0.5)
+      var dy = 0.5*(Math.random()-0.5)
+      out.push([x+dx,y+dy]);
+    }
+  }
+  return out;
+}
+
+
+var image = [ "..........",
+              ".xxx......",
+              ".x........",
+              ".xxx......",
+              ".x........",
+              ".xxx......",
+              "....xxxxx.",
+              "....x.x.x.",
+              "....x.x.x.",
+              ".........."];
+
+function draw_image(img) {
+  var out = [];
+  var xr = 2/image.length;
+  var yr = 2/image[0].length;
+  for(var ii = 0; ii < image.length; ++ii) {
+    var y0 = 1-2*ii/image.length;
+    for(var jj = 0; jj < image[ii].length; ++jj) {
+      if (image[ii][jj] != '.') {
+        var x0 = -1+2*jj/image[ii].length;
+        for(var kk = 0; kk < 10; ++kk) {
+          out.push([x0+xr*Math.random(), y0+yr*Math.random()]);
+        }
+      }
+    }
+  }
+  return out;
+}
+
+
+
+// kmeans_update_means()
+//   set each means[m] to be the avg of all data[x] such that labels[x] = m.
+//   in other words, compute the average of all values with each label.
+function kmeans_update_means(data,means,labels) {
+  // pre: labels[dd] = 0 .. means.length-1
+  // pre: data[dd] = [x,y]
+  // post: means[dd] = [.., ..]
+  var counts = [];
+  for(var mm = 0; mm < means.length; ++mm) {
+    means[mm] = [0,0];
+    counts[mm] = 0;
+  }
+  for(var dd = 0; dd < data.length; ++dd) {
+    var l = labels[dd];
+    means[l][0] += data[dd][0];
+    means[l][1] += data[dd][1];
+    counts[l]++;
+  }
+  for(var mm = 0; mm < means.length; ++mm) {
+    if(counts[mm] != 0) {
+      means[mm][0] /= counts[mm];
+      means[mm][1] /= counts[mm];
+    } else {
+      // assign it at random.
+      var r = Math.floor(Math.random()*data.length);
+      means[mm] = [data[r][0], data[r][1]];
+    }
+    // or it was empty.  shucks.
+  }
+}
+
+// kmeans_update_labels()
+//   set each labels[d] to m which minimizes dist(data[d], means[m])
+//   in other words, assign each data point to its nearest mean.
+//   returns whether any label was changed.
+function kmeans_update_labels(data,means,labels) {
+  var modified = false;
+  for(var dd = 0; dd < data.length; ++dd) {
+    var min_mm = 0;
+    var min_dist = v2_dist_v2(data[dd], means[0]);
+    for(var mm = 1; mm < means.length; ++mm) {
+      var dist = v2_dist_v2(data[dd], means[mm]);
+      if (dist < min_dist) {
+        min_dist = dist;
+        min_mm = mm;
+      }
+    }
+    if(labels[dd] != min_mm) {
+      modified = true;
+    }
+    labels[dd] = min_mm;
+  }
+  return modified;
+}
+
+function em_init(data, labelvecs, classes) {
+  labelvecs.length = data.length;
+  for(var dd = 0; dd < data.length; ++dd) {
+    labelvecs[dd] = [];
+    for(var cc = 0; cc < classes.length; ++cc) {
+      labelvecs[dd][cc] = 1.0 / classes.length;
+    }
+  }
+  var s = 0.2;
+  for(var cc = 0; cc < classes.length; ++cc) {
+    classes[cc] = [];
+    classes[cc][0] = v2_rand();
+    classes[cc][1] = [s, 0, 0, s];
+  }
+}
+
+function em_prep(data, labelvecs, classes) {
+  for(var dd = labelvecs.length; dd < data.length; ++dd) {
+    labelvecs[dd] = [];
+    for(var cc = 0; cc < classes.length; ++cc) {
+      labelvecs[dd][cc] = 1.0 / classes.length;
+    }
+  }
+  labelvecs.length = data.length;
+  var s = 0.2;
+  for(var cc = 0; cc < classes.length; ++cc) {
+    if(classes[cc]) {
+      continue;
+    }
+    classes[cc] = [];
+    classes[cc][0] = v2_rand();
+    classes[cc][1] = [s, 0, 0, s];
+  }
+}
+
+function em_expect(data, labelvecs, classes) {
+  // data: array of v2 points
+  // labelvecs: probabilistic assignment of data to classes
+  // classes: each is a [v2, m22]
+  
+  // This is described in:
+  // http://en.wikipedia.org/wiki/Multivariate_normal_distribution
+  // 
+  // For every class..
+  for(var cc = 0; cc < classes.length; ++cc) {
+    // ..compute fixed parameters of probability density function..
+    var inv_cov = m22_invert(classes[cc][1]);
+    var d = Math.pow(m22_det(classes[cc][1]), -0.5);
+    // ..and for every datum..
+    for(var dd = 0; dd < data.length; ++dd) {
+      var rel = v2_sub_v2(data[dd], classes[cc][0]);
+      // ..compute its probability.
+      var p = d*Math.exp(-0.5*v2_dot_v2(v2_mul_m22(rel, inv_cov), rel));
+      labelvecs[dd][cc] = p;
+    }
+  }
+
+  // Now normalize so each datum has probability 1.0.
+  // Also label each one as its current most likely class.
+  for(var dd = 0; dd < data.length; ++dd) {
+    var sum = 0;
+    var max = 0;
+    var maxcc = 0;
+    for(var cc = 0; cc < classes.length; ++cc) {
+      sum += labelvecs[dd][cc];
+      if (labelvecs[dd][cc] > max) {
+        max = labelvecs[dd][cc];
+        maxcc = cc;
+      }
+    }
+    labels[dd] = maxcc;
+    for(var cc = 0; cc < classes.length; ++cc) {
+      labelvecs[dd][cc] /= sum;
+    }
+  }
+}
+
+function em_maximize(data, labelvecs, classes) {
+  for(var cc = 0; cc < classes.length; ++cc) {
+    var sum = [0,0];
+    var num = 0;
+    for(var dd = 0; dd < data.length; ++dd) {
+      var p = labelvecs[dd][cc];
+      sum[0] += p * data[dd][0];
+      sum[1] += p * data[dd][1];
+      num += p;
+    }
+    
+    var mean = [sum[0]/num, sum[1]/num];
+    var xx = 0, yy = 0, xy = 0;
+    for(var dd = 0; dd < data.length; ++dd) {
+      var p = labelvecs[dd][cc];
+      var rel = v2_sub_v2(data[dd], mean);
+      xx += rel[0]*rel[0] * p;
+      xy += rel[0]*rel[1] * p;
+      yy += rel[1]*rel[1] * p;
+
+    }
+    xx /= num;
+    xy /= num;
+    yy /= num;
+    
+    var cov = [xx, xy, xy, yy];
+    
+    classes[cc][0] = mean;
+    classes[cc][1] = cov;
+  }  
+}
+
+function em_draw_classes(classes) {
+  var nn = 32;
+  for(var cc = 0; cc < classes.length; ++cc) {
+    var mean = classes[cc][0];
+    var ch = m22_transpose(m22_chol(classes[cc][1]));
+    ctx.strokeStyle = colors[1+cc];    
+    for(var kk = 1; kk <= 2; ++kk) {
+      ctx.beginPath();
+      for(var ii = 0; ii <= nn; ++ii) {
+        var th = ii/nn*2*Math.PI;
+        var v = [kk*Math.cos(th), kk*Math.sin(th)];
+        v = v2_add_v2(mean, v2_mul_m22(v,ch));
+        if (ii == 0) {
+          ctx.moveTo(v[0], v[1]);
+        } else {
+          ctx.lineTo(v[0], v[1]);
+        }
+      }
+      ctx.stroke();
+    }
+  }
+}
+
+var ctx;
+function get_context() {
+  if(ctx) return;
+  var canvas = document.getElementById("canvas");
+  canvas.onselectstart = function () { return false; }
+  ctx = canvas.getContext("2d");
+  var size = 400;
+  // convert size^2 pixel <canvas> to unit square coordinates:
+  ctx.translate(size/2,size/2);
+  ctx.scale(size/2,-size/2);
+}
+
+function draw_grid() {
+  ctx.lineWidth = 0.005;
+  for(var xx = -9; xx <= 9; ++xx) {
+    ctx.strokeStyle = "rgb(192,192,192)";
+    ctx.beginPath();
+    ctx.moveTo(xx/10,-1); ctx.lineTo(xx/10,1);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(-1,xx/10); ctx.lineTo(1,xx/10);
+    ctx.stroke();
+  }
+  ctx.strokeStyle = "rgb(64,64,64)";
+  ctx.beginPath();
+  ctx.moveTo(-1,0); ctx.lineTo(1,0);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(0,-1); ctx.lineTo(0,1);
+  ctx.stroke();
+}
+
+// 
+function draw_data(data,labels) {
+  // data: array of v2.
+  // labels: optional array of integer color indices.
+  for(var dd = 0; dd < data.length; ++dd) {
+    if (labels && dd < labels.length) {
+      ctx.fillStyle = colors[1+labels[dd]];
+    } else {
+      ctx.fillStyle = colors[0];
+    }
+    ctx.beginPath();
+    ctx.arc(data[dd][0],data[dd][1],0.015,0,2*Math.PI,0);
+    ctx.fill();
+  }
+}
+
+function draw_means(means) {
+  ctx.strokeStyle = 'rgb(80,80,80)';
+  ctx.lineWidth = 0.01;
+  for(var mm = 0; mm < means.length; ++mm) {
+    ctx.fillStyle = colors[1+mm];
+    ctx.beginPath();
+    ctx.arc(means[mm][0],means[mm][1],0.03,0,2*Math.PI,0);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.arc(means[mm][0],means[mm][1],0.03,0,2*Math.PI,0);
+    ctx.stroke();
+  }
+}
+
+var colors = [ 'rgb(128,128,128)',
+               'rgb(197,107,35)',
+               'rgb(131,16,29)',
+               'rgb(0,96,75)',
+               'rgb(0,147,180)',
+               'rgb(160,0,160)',
+               'rgb(0,0,192)',
+               'rgb(120,120,80)',
+               'rgb(255,255,0)',
+               'rgb(64,64,64)'];
+
+// Data to be clustered. Each element is [x,y] in (-1:1).
+var data = [];
+// Labels for each datum.  Integers < colors.length.
+var labels = [];
+var nclasses = 3;
+
+// Stuff for k-means:
+// Each element is an [x,y] mean for the corresponding class.
+var means = [];
+
+// Stuff for EM.
+// Each element is a size-nclasses array of probs st. sum(..)=1.
+var em_labelvecs = [];
+// Each element is a [mean, covariance] pair.  (v2, m22).
+var em_classes = [];
+
+
+// 0: none, 1: kmeans, 2: em.
+var mode = 0;
+
+function cluster_init() {
+  if (nclasses < 1) nclasses = 1;
+  
+  // Resize labels to data and assign invalid labels randomly.
+  labels.length = data.length;
+  for(var ll = 0; ll < labels.length; ++ll) {
+    if (labels[ll] == null || labels[ll] < 0 || labels[ll] >= nclasses) {
+      labels[ll] = Math.floor(Math.random(nclasses));
+    }
+  }
+
+  means.length = nclasses;
+  // Compute the mean of each existing class.
+  kmeans_update_means(data, means, labels);
+  
+  em_classes.length = nclasses;
+  // Calculate the gaussian of each existing class.
+  
+  em_prep(data, em_labelvecs, em_classes, labels);
+  //em_init(data, em_labelvecs, em_classes, labels);
+  
+  //em_maximize(data, em_labelvecs, em_classes);
+  
+  draw(); 
+}
+
+//cluster_init();
+
+var animate = 0;
+function cluster_update() {
+  if(mode == 1) {
+    kmeans_update_means(data,means,labels);
+    if(!kmeans_update_labels(data,means,labels)) {
+      animate = 0;
+    }
+  } else if (mode == 2) {
+    em_expect(data, em_labelvecs, em_classes);
+    em_maximize(data, em_labelvecs, em_classes);
+    for(var dd = 0; dd < data.length; ++dd) {
+      var max_p = 0;
+      var max_cc = 0;
+      for(var cc = 0; cc < em_classes.length; ++cc) {
+        if (em_labelvecs[dd][cc] > max_p) {
+	        max_p = em_labelvecs[dd][cc];
+	        max_cc = cc;
+        }
+      }
+      labels[dd] = max_cc;
+    }
+  }
+  draw();
+  if (animate > 0) {
+    --animate;
+    window.setTimeout(cluster_update, 200);
+  }
+}
+  
+function draw() {
+  get_context();
+  ctx.clearRect(-1,-1,2,2);
+  draw_grid();
+  draw_data(data,labels);
+  if (mode == 1) {
+    draw_means(means);
+  } else if(mode == 2){
+    em_draw_classes(em_classes);
+  }
+}
+
+
+function body_onload() {
+  data = draw_image(image);
+  nclasses = 2;
+  mode = 2;
+  animate = 100;
+  cluster_init();
+  for(var ii = 0; ii < 5; ++ii) {
+    cluster_update();
+  }
+  
+  
+
+  draw();
+}
+
+function canvas_click() {
+  var x0 = -1 + 2 * event.offsetX / 400;
+  var y0 =  1 - 2 * event.offsetY / 400;
+  var s = 0.1;
+  var n = 16;
+  while(n--) {
+    var x = x0 + s*(1-2*Math.random());
+    var y = y0 + s*(1-2*Math.random());
+    if (x > 1) x = 1; if (x < -1) x = -1;
+    if (y > 1) y = 1; if (y < -1) y = -1;
+    data.push([x,y]);
+  }
+  cluster_init();
+  draw();
+}
+
+function clearData(){
+  data = [];
+  labels = [];
+  mode = 0;
+  draw();
+}
+
+    </script><style>
+body {
+  background-color: #ddd;
+  font-family: Georgia;
+}
+canvas#canvas {
+  background-color: #eee;
+}
+
+
+table {
+  border: 1px solid #111;
+}
+td {
+  vertical-align: top;
+  border: 1px solid #444;
+}
+td.canvas {
+  width: 400px;
+}
+td.control {
+  width: 100px;
+}
+
+    </style>
+  </head>
+  <body onload="body_onload()">
+<div class="main">
+<a href="http://jormungand.net/">jormungand.net</a> »
+<a href="http://jormungand.net/projects/">projects</a> »
+<a href="http://jormungand.net/projects/misc/">misc</a> 
+<br>
+<a href="http://jormungand.net/projects/misc/graphics/">graphics</a>
+ &#8901; <b>em</b>
+ &#8901; <a href="http://jormungand.net/projects/misc/random/">random</a>
+ &#8901; <a href="http://jormungand.net/projects/misc/mt/">mt</a>
+ &#8901; <a href="http://jormungand.net/projects/misc/garden/">garden</a>
+<hr>
+
+<h1>EM Clustering Algorithm</h1>
+
+<h2>A word of caution</h2>
+
+This web page shows up in search results for "em clustering" at a rank far
+better than my expertise in the matter justifies; I only wrote this for fun and
+to help understand it myself.  The <a href="http://en.wikipedia.org/wiki/Expectation-maximization_algorithm">wikipedia
+description of em</a> is far more authoritative.
+
+<h2>Overview</h2>
+
+Suppose you have a number of samples drawn from a distribution which can be
+approximated by (or in this case, <i>is</i>, since the data is made up) a
+mixture of gaussian distributions and you wish to estimate the parameters of
+each gaussian and assign each datum to a particular one.  The EM, or
+Expectation Maximization algorithm provides a framework for doing so.<br>
+<p align="center"><table class="img"><tbody><tr><td>
+  <a href="http://jormungand.net/projects/misc/em/ex8r.png">
+    <img src="./EM Clustering Algorithm_files/ex8r_sm.png" width="470" height="500" border="0/">
+  </a><br>
+  <i>ex8r.png</i>
+</td></tr></tbody></table></p>
+
+8 bivariate gaussian distributions with random parameters have been sampled 1000 times.  The EM algorithm is used to classify each point into the most likely gaussian (shown as point color) and estimate the parameters of each distribution (shown as ellipses).  This is generally more interesting in higher dimensions.
+<p align="center"><table class="img"><tbody><tr><td>
+  <a href="http://jormungand.net/projects/misc/em/ex8.png">
+    <img src="./EM Clustering Algorithm_files/ex8_sm.png" width="470" height="500" border="0/">
+  </a><br>
+  <i>ex8.png</i>
+</td></tr></tbody></table></p>
+
+Expectation-maximization, as expected, works in two alternating steps.  Expectation refers to computing the probability that each datum is a member of each class; maximization refers to altering the parameters of each class to maximize those probabilities.  Eventually it converges, though not necessarily correctly.
+
+
+<h2>New: Javascript Version</h2>
+
+
+  <div id="main">
+
+    <h1>cluster demo</h1>
+  <table><tbody><tr><td class="canvas">
+    <canvas onclick="canvas_click()" id="canvas" width="400" height="400"></canvas>
+</td><td class="control">
+
+      <button onclick="clearData();">clr</button><br>
+      <button onclick="nclasses=1;cluster_init();">1</button>
+      <button onclick="nclasses=2;cluster_init();">2</button>
+      <button onclick="nclasses=3;cluster_init();">3</button><br>
+      <button onclick="nclasses=4;cluster_init();">4</button>
+      <button onclick="nclasses=5;cluster_init();">5</button>
+      <button onclick="nclasses=6;cluster_init();">6</button><br>
+      <button onclick="nclasses=7;cluster_init();">7</button>
+      <button onclick="nclasses=8;cluster_init();">8</button>
+      <button onclick="nclasses=9;cluster_init();">9</button><br>
+      <button onclick="mode=1;animate=20000;cluster_update();">km</button><br>
+      <button onclick="mode=2;animate=20000;cluster_update();">em</button><br>
+
+
+</td></tr>
+</tbody></table>
+
+<p>
+This is an interactive demo of the 2d
+<a href="http://en.wikipedia.org/wiki/K-means_clustering">k-means</a>
+and
+<a href="http://en.wikipedia.org/wiki/Expectation-maximization_algorithm">EM</a>
+(2d gaussian mixture) clustering algorithms.
+
+
+</p><p>
+
+<br><br>
+
+    </p></div>
+
+
+    
+<h2>C++ Code</h2>
+See <a href="http://jormungand.net/projects/misc/em/em.tar.gz">em.tar.gz</a> for the complete code and data files.  The interesting stuff is printed below.<br>
+<br>
+Disclaimer: this is messy, buggy, and incomplete, quite possibly downright wrong, and has all sorts of compile warnings.  If you are passing this off as your own CS homework, you ought to fix at least the warnings...<br><br>
+<table bgcolor="black" cellpadding="1" border="0" cellspacing="0"><tbody><tr><td>
+<table bgcolor="#aaaaaa" cellpadding="1" border="0" cellspacing="0"><tbody><tr><td>
+<pre>
+<a name="line1">  1</a> <font color="0000ff"><strong>#include <font color="#008000">"M.H"</font></strong></font>
+<a name="line2">  2</a> <font color="0000ff"><strong>#include <font color="#008000">&lt;stdio.h&gt;</font></strong></font>
+<a name="line3">  3</a> <font color="0000ff"><strong>#include <font color="#008000">&lt;fcntl.h&gt;</font></strong></font>
+<a name="line4">  4</a> <font color="0000ff"><strong>#include <font color="#008000">&lt;vector&gt;</font></strong></font>
+<a name="line5">  5</a> 
+<a name="line6">  6</a> <strong>int</strong> <font color="#2040a0">main</font><font color="4444FF">(</font><strong>int</strong> <font color="#2040a0">argc</font>, <strong>char</strong> <font color="4444FF">*</font><font color="4444FF">*</font><font color="#2040a0">argv</font><font color="4444FF">)</font><font color="4444FF"><strong>{</strong></font>
+<a name="line7">  7</a> 
+<a name="line8">  8</a>   <font color="#2040a0">srand</font><font color="4444FF">(</font><font color="#2040a0">time</font><font color="4444FF">(</font><font color="#FF0000">0</font><font color="4444FF">)</font><font color="4444FF">)</font><font color="4444FF">;</font>
+<a name="line9">  9</a>   
+<a name="line10"> 10</a>   <font color="#2040a0">vector</font><font color="4444FF">&lt;</font><font color="#2040a0">V2</font><font color="4444FF">&gt;</font> <font color="#2040a0">data</font><font color="4444FF">;</font>
+<a name="line11"> 11</a> 
+<a name="line12"> 12</a>   <strong>if</strong><font color="4444FF">(</font><font color="#2040a0">argc</font> <font color="4444FF">&lt;</font> <font color="#FF0000">4</font><font color="4444FF">)</font><font color="4444FF"><strong>{</strong></font>
+<a name="line13"> 13</a>     <font color="#2040a0">fprintf</font><font color="4444FF">(</font><font color="#2040a0">stderr</font>,<font color="#008000">"usage: %s &lt;#classes&gt; &lt;#iterations&gt; &lt;datafile&gt;<font color="#77dd77">\n</font>"</font>, <font color="#2040a0">argv</font><font color="4444FF">[</font><font color="#FF0000">0</font><font color="4444FF">]</font><font color="4444FF">)</font><font color="4444FF">;</font>
+<a name="line14"> 14</a>     <strong>return</strong> <font color="4444FF">-</font><font color="#FF0000">1</font><font color="4444FF">;</font>
+<a name="line15"> 15</a>   <font color="4444FF"><strong>}</strong></font>
+<a name="line16"> 16</a>   
+<a name="line17"> 17</a>   <strong>int</strong> <font color="#2040a0">nclasses</font> <font color="4444FF">=</font> <font color="#2040a0">atoi</font><font color="4444FF">(</font><font color="#2040a0">argv</font><font color="4444FF">[</font><font color="#FF0000">1</font><font color="4444FF">]</font><font color="4444FF">)</font><font color="4444FF">;</font>
+<a name="line18"> 18</a>   <strong>int</strong> <font color="#2040a0">niteration</font> <font color="4444FF">=</font> <font color="#2040a0">atoi</font><font color="4444FF">(</font><font color="#2040a0">argv</font><font color="4444FF">[</font><font color="#FF0000">2</font><font color="4444FF">]</font><font color="4444FF">)</font><font color="4444FF">;</font>
+<a name="line19"> 19</a> 
+<a name="line20"> 20</a>   <strong>if</strong><font color="4444FF">(</font><font color="4444FF">!</font><font color="#2040a0">nclasses</font><font color="4444FF">)</font><font color="4444FF"><strong>{</strong></font>
+<a name="line21"> 21</a>     <font color="#2040a0">fprintf</font><font color="4444FF">(</font><font color="#2040a0">stderr</font>, <font color="#008000">"classes should be nonzero<font color="#77dd77">\n</font>"</font><font color="4444FF">)</font><font color="4444FF">;</font>
+<a name="line22"> 22</a>     <strong>return</strong> <font color="4444FF">-</font><font color="#FF0000">1</font><font color="4444FF">;</font>
+<a name="line23"> 23</a>   <font color="4444FF"><strong>}</strong></font>
+<a name="line24"> 24</a>   
+<a name="line25"> 25</a>   <strong>char</strong> <font color="4444FF">*</font> <font color="#2040a0">fname</font> <font color="4444FF">=</font> <font color="#2040a0">argv</font><font color="4444FF">[</font><font color="#FF0000">3</font><font color="4444FF">]</font><font color="4444FF">;</font>
+<a name="line26"> 26</a>   <font color="#2040a0">FILE</font> <font color="4444FF">*</font> <font color="#2040a0">file</font> <font color="4444FF">=</font> <font color="#2040a0">fopen</font><font color="4444FF">(</font><font color="#2040a0">fname</font>, <font color="#008000">"r"</font><font color="4444FF">)</font><font color="4444FF">;</font>
+<a name="line27"> 27</a>   <strong>if</strong><font color="4444FF">(</font><font color="4444FF">!</font><font color="#2040a0">file</font><font color="4444FF">)</font><font color="4444FF"><strong>{</strong></font>
+<a name="line28"> 28</a>     <font color="#2040a0">fprintf</font><font color="4444FF">(</font><font color="#2040a0">stderr</font>, <font color="#008000">"could not open '%s'<font color="#77dd77">\n</font>"</font>, <font color="#2040a0">fname</font><font color="4444FF">)</font><font color="4444FF">;</font>
+<a name="line29"> 29</a>     <strong>return</strong> <font color="4444FF">-</font><font color="#FF0000">1</font><font color="4444FF">;</font>
+<a name="line30"> 30</a>   <font color="4444FF"><strong>}</strong></font>
+<a name="line31"> 31</a> 
+<a name="line32"> 32</a>   <strong>char</strong> <font color="#2040a0">buffer</font><font color="4444FF">[</font><font color="#FF0000">80</font><font color="4444FF">]</font><font color="4444FF">;</font>
+<a name="line33"> 33</a>   <strong>while</strong><font color="4444FF">(</font><font color="#2040a0">fgets</font><font color="4444FF">(</font><font color="#2040a0">buffer</font>, <strong>sizeof</strong><font color="4444FF">(</font><font color="#2040a0">buffer</font><font color="4444FF">)</font>, <font color="#2040a0">file</font><font color="4444FF">)</font><font color="4444FF">)</font><font color="4444FF"><strong>{</strong></font>
+<a name="line34"> 34</a>     <font color="#2040a0">V2</font> <font color="#2040a0">p</font><font color="4444FF">;</font>
+<a name="line35"> 35</a>     <strong>int</strong> <font color="#2040a0">r</font> <font color="4444FF">=</font> <font color="#2040a0">sscanf</font><font color="4444FF">(</font><font color="#2040a0">buffer</font>, <font color="#008000">"%lf  %lf"</font>, <font color="4444FF">&amp;</font><font color="#2040a0">p</font>.<font color="#2040a0">x</font>, <font color="4444FF">&amp;</font><font color="#2040a0">p</font>.<font color="#2040a0">y</font><font color="4444FF">)</font><font color="4444FF">;</font>
+<a name="line36"> 36</a>     <strong>if</strong><font color="4444FF">(</font><font color="#2040a0">r</font> <font color="4444FF">=</font><font color="4444FF">=</font> <font color="#FF0000">2</font><font color="4444FF">)</font><font color="4444FF"><strong>{</strong></font>
+<a name="line37"> 37</a>       <font color="#2040a0">data</font>.<font color="#2040a0">push_back</font><font color="4444FF">(</font><font color="#2040a0">p</font><font color="4444FF">)</font><font color="4444FF">;</font>
+<a name="line38"> 38</a>     <font color="4444FF"><strong>}</strong></font><strong>else</strong><font color="4444FF"><strong>{</strong></font>
+<a name="line39"> 39</a>       <font color="#2040a0">fprintf</font><font color="4444FF">(</font><font color="#2040a0">stderr</font>, <font color="#008000">"sscanf returned %d on '%s'<font color="#77dd77">\n</font>"</font>, <font color="#2040a0">buffer</font><font color="4444FF">)</font><font color="4444FF">;</font>
+<a name="line40"> 40</a>     <font color="4444FF"><strong>}</strong></font>
+<a name="line41"> 41</a>   <font color="4444FF"><strong>}</strong></font>
+<a name="line42"> 42</a>   <font color="#2040a0">fprintf</font><font color="4444FF">(</font><font color="#2040a0">stderr</font>, <font color="#008000">"loaded %d datums<font color="#77dd77">\n</font>"</font>, <font color="#2040a0">data</font>.<font color="#2040a0">size</font><font color="4444FF">(</font><font color="4444FF">)</font><font color="4444FF">)</font><font color="4444FF">;</font>
+<a name="line43"> 43</a> 
+<a name="line44"> 44</a>   <font color="#2040a0">fclose</font><font color="4444FF">(</font><font color="#2040a0">file</font><font color="4444FF">)</font><font color="4444FF">;</font>
+<a name="line45"> 45</a> 
+<a name="line46"> 46</a>   <font color="#2040a0">vector</font><font color="4444FF">&lt;</font><font color="#2040a0">M23</font><font color="4444FF">&gt;</font> <font color="#2040a0">classes</font><font color="4444FF">(</font><font color="#2040a0">nclasses</font><font color="4444FF">)</font><font color="4444FF">;</font>
+<a name="line47"> 47</a> 
+<a name="line48"> 48</a>   <strong>for</strong><font color="4444FF">(</font><strong>unsigned</strong> <strong>int</strong> <font color="#2040a0">cls</font><font color="4444FF">=</font><font color="#FF0000">0</font><font color="4444FF">;</font> <font color="#2040a0">cls</font><font color="4444FF">&lt;</font><font color="#2040a0">classes</font>.<font color="#2040a0">size</font><font color="4444FF">(</font><font color="4444FF">)</font><font color="4444FF">;</font> <font color="4444FF">+</font><font color="4444FF">+</font><font color="#2040a0">cls</font><font color="4444FF">)</font><font color="4444FF"><strong>{</strong></font>
+<a name="line49"> 49</a>     <font color="#2040a0">classes</font><font color="4444FF">[</font><font color="#2040a0">cls</font><font color="4444FF">]</font>.<font color="#2040a0">a</font> <font color="4444FF">=</font> <font color="#FF0000">5</font><font color="4444FF">*</font><font color="4444FF">(</font><font color="#2040a0">rand</font><font color="4444FF">(</font><font color="4444FF">)</font>/<font color="4444FF">(</font><strong>double</strong><font color="4444FF">)</font><font color="#2040a0">RAND_MAX</font><font color="4444FF">)</font><font color="4444FF">;</font>
+<a name="line50"> 50</a>     <font color="#2040a0">classes</font><font color="4444FF">[</font><font color="#2040a0">cls</font><font color="4444FF">]</font>.<font color="#2040a0">b</font> <font color="4444FF">=</font> <font color="#FF0000">0</font><font color="4444FF">;</font>
+<a name="line51"> 51</a>     <font color="#2040a0">classes</font><font color="4444FF">[</font><font color="#2040a0">cls</font><font color="4444FF">]</font>.<font color="#2040a0">c</font> <font color="4444FF">=</font> <font color="#FF0000">30</font><font color="4444FF">*</font><font color="4444FF">(</font><font color="#2040a0">rand</font><font color="4444FF">(</font><font color="4444FF">)</font>/<font color="4444FF">(</font><strong>double</strong><font color="4444FF">)</font><font color="#2040a0">RAND_MAX</font><font color="4444FF">)</font><font color="4444FF">;</font>
+<a name="line52"> 52</a>     <font color="#2040a0">classes</font><font color="4444FF">[</font><font color="#2040a0">cls</font><font color="4444FF">]</font>.<font color="#2040a0">d</font> <font color="4444FF">=</font> <font color="#FF0000">0</font><font color="4444FF">;</font>
+<a name="line53"> 53</a>     <font color="#2040a0">classes</font><font color="4444FF">[</font><font color="#2040a0">cls</font><font color="4444FF">]</font>.<font color="#2040a0">e</font> <font color="4444FF">=</font> <font color="#FF0000">5</font><font color="4444FF">*</font><font color="4444FF">(</font><font color="#2040a0">rand</font><font color="4444FF">(</font><font color="4444FF">)</font>/<font color="4444FF">(</font><strong>double</strong><font color="4444FF">)</font><font color="#2040a0">RAND_MAX</font><font color="4444FF">)</font><font color="4444FF">;</font>
+<a name="line54"> 54</a>     <font color="#2040a0">classes</font><font color="4444FF">[</font><font color="#2040a0">cls</font><font color="4444FF">]</font>.<font color="#2040a0">f</font> <font color="4444FF">=</font> <font color="#FF0000">30</font><font color="4444FF">*</font><font color="4444FF">(</font><font color="#2040a0">rand</font><font color="4444FF">(</font><font color="4444FF">)</font>/<font color="4444FF">(</font><strong>double</strong><font color="4444FF">)</font><font color="#2040a0">RAND_MAX</font><font color="4444FF">)</font><font color="4444FF">;</font>
+<a name="line55"> 55</a>   <font color="4444FF"><strong>}</strong></font>
+<a name="line56"> 56</a> 
+<a name="line57"> 57</a>   <font color="#2040a0">vector</font><font color="4444FF">&lt;</font><font color="#2040a0">vector</font><font color="4444FF">&lt;</font><strong>double</strong><font color="4444FF">&gt;</font> <font color="4444FF">&gt;</font> <font color="#2040a0">prob_cls</font><font color="4444FF">;</font>
+<a name="line58"> 58</a>   <strong>for</strong><font color="4444FF">(</font><strong>unsigned</strong> <strong>int</strong> <font color="#2040a0">i</font><font color="4444FF">=</font><font color="#FF0000">0</font><font color="4444FF">;</font> <font color="#2040a0">i</font><font color="4444FF">&lt;</font><font color="#2040a0">data</font>.<font color="#2040a0">size</font><font color="4444FF">(</font><font color="4444FF">)</font><font color="4444FF">;</font> <font color="4444FF">+</font><font color="4444FF">+</font><font color="#2040a0">i</font><font color="4444FF">)</font><font color="4444FF"><strong>{</strong></font>
+<a name="line59"> 59</a>     <font color="#2040a0">prob_cls</font>.<font color="#2040a0">push_back</font><font color="4444FF">(</font><font color="#2040a0">vector</font><font color="4444FF">&lt;</font><strong>double</strong><font color="4444FF">&gt;</font><font color="4444FF">(</font><font color="#2040a0">classes</font>.<font color="#2040a0">size</font><font color="4444FF">(</font><font color="4444FF">)</font><font color="4444FF">)</font><font color="4444FF">)</font><font color="4444FF">;</font>
+<a name="line60"> 60</a>   <font color="4444FF"><strong>}</strong></font>
+<a name="line61"> 61</a> 
+<a name="line62"> 62</a>   <strong>int</strong> <font color="#2040a0">iteration</font> <font color="4444FF">=</font> <font color="#FF0000">0</font><font color="4444FF">;</font>
+<a name="line63"> 63</a>   <strong>while</strong><font color="4444FF">(</font><font color="#FF0000">1</font><font color="4444FF">)</font><font color="4444FF"><strong>{</strong></font>
+<a name="line64"> 64</a>     <font color="#2040a0">fprintf</font><font color="4444FF">(</font><font color="#2040a0">stderr</font>, <font color="#008000">"iteration %d ...<font color="#77dd77">\n</font>"</font>, <font color="#2040a0">iteration</font><font color="4444FF">+</font><font color="4444FF">+</font><font color="4444FF">)</font><font color="4444FF">;</font>
+<a name="line65"> 65</a> 
+<a name="line66"> 66</a>     <font color="#444444">// compute probability of each datum being in each class</font>
+<a name="line67"> 67</a>     <strong>for</strong><font color="4444FF">(</font><strong>unsigned</strong> <strong>int</strong> <font color="#2040a0">cls</font> <font color="4444FF">=</font> <font color="#FF0000">0</font><font color="4444FF">;</font> <font color="#2040a0">cls</font> <font color="4444FF">&lt;</font> <font color="#2040a0">classes</font>.<font color="#2040a0">size</font><font color="4444FF">(</font><font color="4444FF">)</font><font color="4444FF">;</font> <font color="4444FF">+</font><font color="4444FF">+</font><font color="#2040a0">cls</font><font color="4444FF">)</font><font color="4444FF"><strong>{</strong></font>
+<a name="line68"> 68</a>       <font color="#2040a0">V2</font> <font color="#2040a0">mean</font> <font color="4444FF">=</font> <font color="#2040a0">classes</font><font color="4444FF">[</font><font color="#2040a0">cls</font><font color="4444FF">]</font>.<font color="#2040a0">zv</font><font color="4444FF">(</font><font color="4444FF">)</font><font color="4444FF">;</font>
+<a name="line69"> 69</a>       <font color="#2040a0">M</font> <font color="#2040a0">cov</font><font color="4444FF">(</font><font color="#FF0000">2</font>,<font color="#FF0000">2</font><font color="4444FF">)</font><font color="4444FF">;</font>
+<a name="line70"> 70</a>       <font color="#2040a0">cov</font><font color="4444FF">(</font><font color="#FF0000">0</font>,<font color="#FF0000">0</font><font color="4444FF">)</font> <font color="4444FF">=</font> <font color="#2040a0">classes</font><font color="4444FF">[</font><font color="#2040a0">cls</font><font color="4444FF">]</font>.<font color="#2040a0">a</font><font color="4444FF">;</font>
+<a name="line71"> 71</a>       <font color="#2040a0">cov</font><font color="4444FF">(</font><font color="#FF0000">0</font>,<font color="#FF0000">1</font><font color="4444FF">)</font> <font color="4444FF">=</font> <font color="#2040a0">classes</font><font color="4444FF">[</font><font color="#2040a0">cls</font><font color="4444FF">]</font>.<font color="#2040a0">b</font><font color="4444FF">;</font>
+<a name="line72"> 72</a>       <font color="#2040a0">cov</font><font color="4444FF">(</font><font color="#FF0000">1</font>,<font color="#FF0000">0</font><font color="4444FF">)</font> <font color="4444FF">=</font> <font color="#2040a0">classes</font><font color="4444FF">[</font><font color="#2040a0">cls</font><font color="4444FF">]</font>.<font color="#2040a0">d</font><font color="4444FF">;</font>
+<a name="line73"> 73</a>       <font color="#2040a0">cov</font><font color="4444FF">(</font><font color="#FF0000">1</font>,<font color="#FF0000">1</font><font color="4444FF">)</font> <font color="4444FF">=</font> <font color="#2040a0">classes</font><font color="4444FF">[</font><font color="#2040a0">cls</font><font color="4444FF">]</font>.<font color="#2040a0">e</font><font color="4444FF">;</font>
+<a name="line74"> 74</a> 
+<a name="line75"> 75</a>       <font color="#2040a0">M</font> <font color="#2040a0">icov</font> <font color="4444FF">=</font> <font color="#2040a0">inv</font><font color="4444FF">(</font><font color="#2040a0">cov</font><font color="4444FF">)</font><font color="4444FF">;</font>
+<a name="line76"> 76</a>       <strong>double</strong> <font color="#2040a0">det</font> <font color="4444FF">=</font> <font color="#2040a0">classes</font><font color="4444FF">[</font><font color="#2040a0">cls</font><font color="4444FF">]</font>.<font color="#2040a0">a</font> <font color="4444FF">*</font> <font color="#2040a0">classes</font><font color="4444FF">[</font><font color="#2040a0">cls</font><font color="4444FF">]</font>.<font color="#2040a0">e</font> <font color="4444FF">-</font> <font color="#2040a0">classes</font><font color="4444FF">[</font><font color="#2040a0">cls</font><font color="4444FF">]</font>.<font color="#2040a0">b</font> <font color="4444FF">*</font> <font color="#2040a0">classes</font><font color="4444FF">[</font><font color="#2040a0">cls</font><font color="4444FF">]</font>.<font color="#2040a0">d</font><font color="4444FF">;</font>
+<a name="line77"> 77</a>       <strong>double</strong> <font color="#2040a0">p2</font> <font color="4444FF">=</font> <font color="#FF0000">1.0</font> / <font color="4444FF">(</font><font color="#FF0000">2</font><font color="4444FF">*</font><font color="#2040a0">M_PI</font><font color="4444FF">*</font><font color="#2040a0">sqrt</font><font color="4444FF">(</font><font color="#2040a0">det</font><font color="4444FF">)</font><font color="4444FF">)</font><font color="4444FF">;</font>
+<a name="line78"> 78</a>       
+<a name="line79"> 79</a>       <strong>for</strong><font color="4444FF">(</font><strong>unsigned</strong> <strong>int</strong> <font color="#2040a0">inst</font> <font color="4444FF">=</font> <font color="#FF0000">0</font><font color="4444FF">;</font> <font color="#2040a0">inst</font> <font color="4444FF">&lt;</font> <font color="#2040a0">data</font>.<font color="#2040a0">size</font><font color="4444FF">(</font><font color="4444FF">)</font><font color="4444FF">;</font> <font color="4444FF">+</font><font color="4444FF">+</font><font color="#2040a0">inst</font><font color="4444FF">)</font><font color="4444FF"><strong>{</strong></font>
+<a name="line80"> 80</a>         <font color="#2040a0">V2</font> <font color="#2040a0">x_minus_u</font> <font color="4444FF">=</font> <font color="#2040a0">data</font><font color="4444FF">[</font><font color="#2040a0">inst</font><font color="4444FF">]</font> <font color="4444FF">-</font> <font color="#2040a0">mean</font><font color="4444FF">;</font>
+<a name="line81"> 81</a>         <strong>double</strong> <font color="#2040a0">p1</font> <font color="4444FF">=</font> <font color="#2040a0">exp</font><font color="4444FF">(</font> <font color="4444FF">-</font><font color="#FF0000">0.5</font> <font color="4444FF">*</font> <font color="4444FF">(</font> <font color="#2040a0">tr</font><font color="4444FF">(</font><font color="4444FF">(</font><font color="#2040a0">M</font><font color="4444FF">)</font><font color="4444FF">(</font><font color="#2040a0">x_minus_u</font><font color="4444FF">)</font><font color="4444FF">)</font> <font color="4444FF">*</font> <font color="#2040a0">icov</font> <font color="4444FF">*</font> <font color="4444FF">(</font><font color="4444FF">(</font><font color="#2040a0">M</font><font color="4444FF">)</font><font color="#2040a0">x_minus_u</font><font color="4444FF">)</font><font color="4444FF">)</font> <font color="4444FF">)</font><font color="4444FF">;</font>
+<a name="line82"> 82</a>         <strong>double</strong> <font color="#2040a0">p</font> <font color="4444FF">=</font> <font color="#2040a0">p1</font><font color="4444FF">*</font><font color="#2040a0">p2</font><font color="4444FF">;</font>
+<a name="line83"> 83</a>         <font color="#2040a0">prob_cls</font><font color="4444FF">[</font><font color="#2040a0">inst</font><font color="4444FF">]</font><font color="4444FF">[</font><font color="#2040a0">cls</font><font color="4444FF">]</font> <font color="4444FF">=</font> <font color="#2040a0">p</font><font color="4444FF">;</font>
+<a name="line84"> 84</a>       <font color="4444FF"><strong>}</strong></font>
+<a name="line85"> 85</a>     <font color="4444FF"><strong>}</strong></font>
+<a name="line86"> 86</a> 
+<a name="line87"> 87</a>     <strong>for</strong><font color="4444FF">(</font><strong>unsigned</strong> <strong>int</strong> <font color="#2040a0">inst</font> <font color="4444FF">=</font> <font color="#FF0000">0</font><font color="4444FF">;</font> <font color="#2040a0">inst</font> <font color="4444FF">&lt;</font> <font color="#2040a0">data</font>.<font color="#2040a0">size</font><font color="4444FF">(</font><font color="4444FF">)</font><font color="4444FF">;</font> <font color="4444FF">+</font><font color="4444FF">+</font><font color="#2040a0">inst</font><font color="4444FF">)</font><font color="4444FF"><strong>{</strong></font>
+<a name="line88"> 88</a>       <strong>double</strong> <font color="#2040a0">s</font> <font color="4444FF">=</font> <font color="#FF0000">0</font><font color="4444FF">;</font>
+<a name="line89"> 89</a>       <strong>int</strong> <font color="#2040a0">b</font><font color="4444FF">;</font>
+<a name="line90"> 90</a>       <strong>double</strong> <font color="#2040a0">bv</font> <font color="4444FF">=</font> <font color="#FF0000">0</font><font color="4444FF">;</font>
+<a name="line91"> 91</a>       <strong>for</strong><font color="4444FF">(</font><strong>unsigned</strong> <strong>int</strong> <font color="#2040a0">cls</font> <font color="4444FF">=</font> <font color="#FF0000">0</font><font color="4444FF">;</font> <font color="#2040a0">cls</font> <font color="4444FF">&lt;</font> <font color="#2040a0">classes</font>.<font color="#2040a0">size</font><font color="4444FF">(</font><font color="4444FF">)</font><font color="4444FF">;</font> <font color="4444FF">+</font><font color="4444FF">+</font><font color="#2040a0">cls</font><font color="4444FF">)</font><font color="4444FF"><strong>{</strong></font>
+<a name="line92"> 92</a>         <font color="#2040a0">s</font> <font color="4444FF">+</font><font color="4444FF">=</font> <font color="#2040a0">prob_cls</font><font color="4444FF">[</font><font color="#2040a0">inst</font><font color="4444FF">]</font><font color="4444FF">[</font><font color="#2040a0">cls</font><font color="4444FF">]</font><font color="4444FF">;</font>
+<a name="line93"> 93</a>         <strong>if</strong><font color="4444FF">(</font><font color="#2040a0">prob_cls</font><font color="4444FF">[</font><font color="#2040a0">inst</font><font color="4444FF">]</font><font color="4444FF">[</font><font color="#2040a0">cls</font><font color="4444FF">]</font> <font color="4444FF">&gt;</font> <font color="#2040a0">bv</font><font color="4444FF">)</font><font color="4444FF"><strong>{</strong></font>
+<a name="line94"> 94</a>           <font color="#2040a0">bv</font> <font color="4444FF">=</font> <font color="#2040a0">prob_cls</font><font color="4444FF">[</font><font color="#2040a0">inst</font><font color="4444FF">]</font><font color="4444FF">[</font><font color="#2040a0">cls</font><font color="4444FF">]</font><font color="4444FF">;</font>
+<a name="line95"> 95</a>           <font color="#2040a0">b</font> <font color="4444FF">=</font> <font color="#2040a0">cls</font><font color="4444FF">;</font>
+<a name="line96"> 96</a>         <font color="4444FF"><strong>}</strong></font>
+<a name="line97"> 97</a>       <font color="4444FF"><strong>}</strong></font>
+<a name="line98"> 98</a>       <strong>for</strong><font color="4444FF">(</font><strong>unsigned</strong> <strong>int</strong> <font color="#2040a0">cls</font> <font color="4444FF">=</font> <font color="#FF0000">0</font><font color="4444FF">;</font> <font color="#2040a0">cls</font> <font color="4444FF">&lt;</font> <font color="#2040a0">classes</font>.<font color="#2040a0">size</font><font color="4444FF">(</font><font color="4444FF">)</font><font color="4444FF">;</font> <font color="4444FF">+</font><font color="4444FF">+</font><font color="#2040a0">cls</font><font color="4444FF">)</font><font color="4444FF"><strong>{</strong></font>
+<a name="line99"> 99</a>         <font color="#2040a0">prob_cls</font><font color="4444FF">[</font><font color="#2040a0">inst</font><font color="4444FF">]</font><font color="4444FF">[</font><font color="#2040a0">cls</font><font color="4444FF">]</font> /<font color="4444FF">=</font> <font color="#2040a0">s</font><font color="4444FF">;</font>
+<a name="line100">100</a>       <font color="4444FF"><strong>}</strong></font>
+<a name="line101">101</a>     <font color="4444FF"><strong>}</strong></font>
+<a name="line102">102</a> 
+<a name="line103">103</a>     <font color="#444444">// compute mean, covariance statistics for each class</font>
+<a name="line104">104</a> 
+<a name="line105">105</a>     <strong>for</strong><font color="4444FF">(</font><strong>unsigned</strong> <strong>int</strong> <font color="#2040a0">cls</font> <font color="4444FF">=</font> <font color="#FF0000">0</font><font color="4444FF">;</font> <font color="#2040a0">cls</font> <font color="4444FF">&lt;</font> <font color="#2040a0">classes</font>.<font color="#2040a0">size</font><font color="4444FF">(</font><font color="4444FF">)</font><font color="4444FF">;</font> <font color="4444FF">+</font><font color="4444FF">+</font><font color="#2040a0">cls</font><font color="4444FF">)</font><font color="4444FF"><strong>{</strong></font>
+<a name="line106">106</a>       <font color="#2040a0">V2</font> <font color="#2040a0">mean</font><font color="4444FF">;</font>
+<a name="line107">107</a>       <strong>double</strong> <font color="#2040a0">q</font> <font color="4444FF">=</font> <font color="#FF0000">0</font><font color="4444FF">;</font>
+<a name="line108">108</a>       <strong>for</strong><font color="4444FF">(</font><strong>unsigned</strong> <strong>int</strong> <font color="#2040a0">inst</font> <font color="4444FF">=</font> <font color="#FF0000">0</font><font color="4444FF">;</font> <font color="#2040a0">inst</font> <font color="4444FF">&lt;</font> <font color="#2040a0">data</font>.<font color="#2040a0">size</font><font color="4444FF">(</font><font color="4444FF">)</font><font color="4444FF">;</font> <font color="4444FF">+</font><font color="4444FF">+</font><font color="#2040a0">inst</font><font color="4444FF">)</font><font color="4444FF"><strong>{</strong></font>
+<a name="line109">109</a>         <font color="#2040a0">mean</font> <font color="4444FF">=</font> <font color="#2040a0">mean</font> <font color="4444FF">+</font> <font color="#2040a0">prob_cls</font><font color="4444FF">[</font><font color="#2040a0">inst</font><font color="4444FF">]</font><font color="4444FF">[</font><font color="#2040a0">cls</font><font color="4444FF">]</font> <font color="4444FF">*</font> <font color="#2040a0">data</font><font color="4444FF">[</font><font color="#2040a0">inst</font><font color="4444FF">]</font><font color="4444FF">;</font>
+<a name="line110">110</a>         <font color="#2040a0">q</font> <font color="4444FF">+</font><font color="4444FF">=</font> <font color="#2040a0">prob_cls</font><font color="4444FF">[</font><font color="#2040a0">inst</font><font color="4444FF">]</font><font color="4444FF">[</font><font color="#2040a0">cls</font><font color="4444FF">]</font><font color="4444FF">;</font>
+<a name="line111">111</a>       <font color="4444FF"><strong>}</strong></font>
+<a name="line112">112</a>       <font color="#2040a0">mean</font> <font color="4444FF">=</font> <font color="#2040a0">mean</font> <font color="4444FF">*</font> <font color="4444FF">(</font><font color="#FF0000">1</font>/<font color="#2040a0">q</font><font color="4444FF">)</font><font color="4444FF">;</font>
+<a name="line113">113</a> 
+<a name="line114">114</a>       <strong>double</strong> <font color="#2040a0">xx</font><font color="4444FF">=</font><font color="#FF0000">0</font>, <font color="#2040a0">yy</font><font color="4444FF">=</font><font color="#FF0000">0</font>, <font color="#2040a0">xy</font><font color="4444FF">=</font><font color="#FF0000">0</font><font color="4444FF">;</font><font color="4444FF">;</font>
+<a name="line115">115</a>       
+<a name="line116">116</a>       <strong>for</strong><font color="4444FF">(</font><strong>unsigned</strong> <strong>int</strong> <font color="#2040a0">inst</font> <font color="4444FF">=</font> <font color="#FF0000">0</font><font color="4444FF">;</font> <font color="#2040a0">inst</font> <font color="4444FF">&lt;</font> <font color="#2040a0">data</font>.<font color="#2040a0">size</font><font color="4444FF">(</font><font color="4444FF">)</font><font color="4444FF">;</font> <font color="4444FF">+</font><font color="4444FF">+</font><font color="#2040a0">inst</font><font color="4444FF">)</font><font color="4444FF"><strong>{</strong></font>
+<a name="line117">117</a>         <strong>double</strong> <font color="#2040a0">dx</font> <font color="4444FF">=</font> <font color="#2040a0">data</font><font color="4444FF">[</font><font color="#2040a0">inst</font><font color="4444FF">]</font>.<font color="#2040a0">x</font><font color="4444FF">-</font><font color="#2040a0">mean</font>.<font color="#2040a0">x</font><font color="4444FF">;</font>
+<a name="line118">118</a>         <strong>double</strong> <font color="#2040a0">dy</font> <font color="4444FF">=</font> <font color="#2040a0">data</font><font color="4444FF">[</font><font color="#2040a0">inst</font><font color="4444FF">]</font>.<font color="#2040a0">y</font><font color="4444FF">-</font><font color="#2040a0">mean</font>.<font color="#2040a0">y</font><font color="4444FF">;</font>
+<a name="line119">119</a>         <font color="#2040a0">xx</font> <font color="4444FF">+</font><font color="4444FF">=</font> <font color="#2040a0">dx</font><font color="4444FF">*</font><font color="#2040a0">dx</font> <font color="4444FF">*</font> <font color="#2040a0">prob_cls</font><font color="4444FF">[</font><font color="#2040a0">inst</font><font color="4444FF">]</font><font color="4444FF">[</font><font color="#2040a0">cls</font><font color="4444FF">]</font><font color="4444FF">;</font>
+<a name="line120">120</a>         <font color="#2040a0">yy</font> <font color="4444FF">+</font><font color="4444FF">=</font> <font color="#2040a0">dy</font><font color="4444FF">*</font><font color="#2040a0">dy</font> <font color="4444FF">*</font> <font color="#2040a0">prob_cls</font><font color="4444FF">[</font><font color="#2040a0">inst</font><font color="4444FF">]</font><font color="4444FF">[</font><font color="#2040a0">cls</font><font color="4444FF">]</font><font color="4444FF">;</font>
+<a name="line121">121</a>         <font color="#2040a0">xy</font> <font color="4444FF">+</font><font color="4444FF">=</font> <font color="#2040a0">dx</font><font color="4444FF">*</font><font color="#2040a0">dy</font> <font color="4444FF">*</font> <font color="#2040a0">prob_cls</font><font color="4444FF">[</font><font color="#2040a0">inst</font><font color="4444FF">]</font><font color="4444FF">[</font><font color="#2040a0">cls</font><font color="4444FF">]</font><font color="4444FF">;</font>
+<a name="line122">122</a>       <font color="4444FF"><strong>}</strong></font>
+<a name="line123">123</a>       <font color="#2040a0">xx</font> /<font color="4444FF">=</font> <font color="#2040a0">q</font><font color="4444FF">;</font>
+<a name="line124">124</a>       <font color="#2040a0">yy</font> /<font color="4444FF">=</font> <font color="#2040a0">q</font><font color="4444FF">;</font>
+<a name="line125">125</a>       <font color="#2040a0">xy</font> /<font color="4444FF">=</font> <font color="#2040a0">q</font><font color="4444FF">;</font>
+<a name="line126">126</a> 
+<a name="line127">127</a>       <font color="#2040a0">printf</font><font color="4444FF">(</font><font color="#008000">"class %d new parameters: mean=(%.3f,%.3f) xx=%.3f yy=%.3f xy=%.3f<font color="#77dd77">\n</font>"</font>,
+<a name="line128">128</a>           <font color="#2040a0">cls</font>, <font color="#2040a0">mean</font>.<font color="#2040a0">x</font>, <font color="#2040a0">mean</font>.<font color="#2040a0">y</font>, <font color="#2040a0">xx</font>, <font color="#2040a0">yy</font>, <font color="#2040a0">xy</font><font color="4444FF">)</font><font color="4444FF">;</font>
+<a name="line129">129</a> 
+<a name="line130">130</a>       <font color="#2040a0">classes</font><font color="4444FF">[</font><font color="#2040a0">cls</font><font color="4444FF">]</font>.<font color="#2040a0">a</font> <font color="4444FF">=</font> <font color="#2040a0">xx</font><font color="4444FF">;</font>
+<a name="line131">131</a>       <font color="#2040a0">classes</font><font color="4444FF">[</font><font color="#2040a0">cls</font><font color="4444FF">]</font>.<font color="#2040a0">b</font> <font color="4444FF">=</font> <font color="#2040a0">xy</font><font color="4444FF">;</font>
+<a name="line132">132</a>       <font color="#2040a0">classes</font><font color="4444FF">[</font><font color="#2040a0">cls</font><font color="4444FF">]</font>.<font color="#2040a0">d</font> <font color="4444FF">=</font> <font color="#2040a0">xy</font><font color="4444FF">;</font>
+<a name="line133">133</a>       <font color="#2040a0">classes</font><font color="4444FF">[</font><font color="#2040a0">cls</font><font color="4444FF">]</font>.<font color="#2040a0">e</font> <font color="4444FF">=</font> <font color="#2040a0">yy</font><font color="4444FF">;</font>
+<a name="line134">134</a>       <font color="#2040a0">classes</font><font color="4444FF">[</font><font color="#2040a0">cls</font><font color="4444FF">]</font>.<font color="#2040a0">x</font> <font color="4444FF">=</font> <font color="#2040a0">mean</font>.<font color="#2040a0">x</font><font color="4444FF">;</font>
+<a name="line135">135</a>       <font color="#2040a0">classes</font><font color="4444FF">[</font><font color="#2040a0">cls</font><font color="4444FF">]</font>.<font color="#2040a0">y</font> <font color="4444FF">=</font> <font color="#2040a0">mean</font>.<font color="#2040a0">y</font><font color="4444FF">;</font>
+<a name="line136">136</a>     <font color="4444FF"><strong>}</strong></font>
+<a name="line137">137</a>         
+<a name="line138">138</a> 
+<a name="line139">139</a>     <strong>if</strong><font color="4444FF">(</font><font color="#2040a0">iteration</font> <font color="4444FF">=</font><font color="4444FF">=</font> <font color="#2040a0">niteration</font><font color="4444FF">)</font> <strong>break</strong><font color="4444FF">;</font>
+<a name="line140">140</a>     
+<a name="line141">141</a>   <font color="4444FF"><strong>}</strong></font>
+<a name="line142">142</a> 
+<a name="line143">143</a>   <font color="#2040a0">printf</font><font color="4444FF">(</font><font color="#008000">"<font color="#77dd77">\n</font>plot"</font><font color="4444FF">)</font><font color="4444FF">;</font>
+<a name="line144">144</a> 
+<a name="line145">145</a>   <font color="#2040a0">vector</font><font color="4444FF">&lt;</font><font color="#2040a0">FILE</font><font color="4444FF">*</font><font color="4444FF">&gt;</font> <font color="#2040a0">outputs</font><font color="4444FF">(</font><font color="#2040a0">classes</font>.<font color="#2040a0">size</font><font color="4444FF">(</font><font color="4444FF">)</font><font color="4444FF">)</font><font color="4444FF">;</font>
+<a name="line146">146</a>   <strong>for</strong><font color="4444FF">(</font><strong>unsigned</strong> <strong>int</strong> <font color="#2040a0">cls</font><font color="4444FF">=</font><font color="#FF0000">0</font><font color="4444FF">;</font> <font color="#2040a0">cls</font><font color="4444FF">&lt;</font><font color="#2040a0">outputs</font>.<font color="#2040a0">size</font><font color="4444FF">(</font><font color="4444FF">)</font><font color="4444FF">;</font> <font color="4444FF">+</font><font color="4444FF">+</font><font color="#2040a0">cls</font><font color="4444FF">)</font><font color="4444FF"><strong>{</strong></font>
+<a name="line147">147</a>     <strong>char</strong> <font color="#2040a0">buffer</font><font color="4444FF">[</font><font color="#FF0000">50</font><font color="4444FF">]</font><font color="4444FF">;</font>
+<a name="line148">148</a>     <font color="#2040a0">sprintf</font><font color="4444FF">(</font><font color="#2040a0">buffer</font>, <font color="#008000">"cls%02d.txt"</font>, <font color="#2040a0">cls</font><font color="4444FF">)</font><font color="4444FF">;</font>
+<a name="line149">149</a>     <font color="#2040a0">outputs</font><font color="4444FF">[</font><font color="#2040a0">cls</font><font color="4444FF">]</font> <font color="4444FF">=</font> <font color="#2040a0">fopen</font><font color="4444FF">(</font><font color="#2040a0">buffer</font>, <font color="#008000">"w"</font><font color="4444FF">)</font><font color="4444FF">;</font>
+<a name="line150">150</a>     <font color="#2040a0">printf</font><font color="4444FF">(</font><font color="#008000">" '%s',"</font>, <font color="#2040a0">buffer</font><font color="4444FF">)</font><font color="4444FF">;</font>
+<a name="line151">151</a>   <font color="4444FF"><strong>}</strong></font>
+<a name="line152">152</a>   
+<a name="line153">153</a> 
+<a name="line154">154</a>   <strong>for</strong><font color="4444FF">(</font><strong>unsigned</strong> <strong>int</strong> <font color="#2040a0">inst</font> <font color="4444FF">=</font> <font color="#FF0000">0</font><font color="4444FF">;</font> <font color="#2040a0">inst</font> <font color="4444FF">&lt;</font> <font color="#2040a0">data</font>.<font color="#2040a0">size</font><font color="4444FF">(</font><font color="4444FF">)</font><font color="4444FF">;</font> <font color="4444FF">+</font><font color="4444FF">+</font><font color="#2040a0">inst</font><font color="4444FF">)</font><font color="4444FF"><strong>{</strong></font>
+<a name="line155">155</a>     <strong>double</strong> <font color="#2040a0">s</font> <font color="4444FF">=</font> <font color="#FF0000">0</font><font color="4444FF">;</font>
+<a name="line156">156</a>     <strong>int</strong> <font color="#2040a0">b</font><font color="4444FF">;</font>
+<a name="line157">157</a>     <strong>double</strong> <font color="#2040a0">bv</font> <font color="4444FF">=</font> <font color="#FF0000">0</font><font color="4444FF">;</font>
+<a name="line158">158</a>     <strong>double</strong> <font color="#2040a0">r</font> <font color="4444FF">=</font> <font color="#2040a0">rand</font><font color="4444FF">(</font><font color="4444FF">)</font>/<font color="4444FF">(</font><strong>double</strong><font color="4444FF">)</font><font color="#2040a0">RAND_MAX</font><font color="4444FF">;</font>
+<a name="line159">159</a>     <strong>for</strong><font color="4444FF">(</font><strong>unsigned</strong> <strong>int</strong> <font color="#2040a0">cls</font> <font color="4444FF">=</font> <font color="#FF0000">0</font><font color="4444FF">;</font> <font color="#2040a0">cls</font> <font color="4444FF">&lt;</font> <font color="#2040a0">classes</font>.<font color="#2040a0">size</font><font color="4444FF">(</font><font color="4444FF">)</font><font color="4444FF">;</font> <font color="4444FF">+</font><font color="4444FF">+</font><font color="#2040a0">cls</font><font color="4444FF">)</font><font color="4444FF"><strong>{</strong></font>
+<a name="line160">160</a>       <strong>if</strong><font color="4444FF">(</font><font color="#2040a0">r</font> <font color="4444FF">&lt;</font> <font color="#2040a0">prob_cls</font><font color="4444FF">[</font><font color="#2040a0">inst</font><font color="4444FF">]</font><font color="4444FF">[</font><font color="#2040a0">cls</font><font color="4444FF">]</font><font color="4444FF">)</font><font color="4444FF"><strong>{</strong></font>
+<a name="line161">161</a>         <font color="#2040a0">b</font> <font color="4444FF">=</font> <font color="#2040a0">cls</font><font color="4444FF">;</font>
+<a name="line162">162</a>         <strong>break</strong><font color="4444FF">;</font>
+<a name="line163">163</a>       <font color="4444FF"><strong>}</strong></font><strong>else</strong><font color="4444FF"><strong>{</strong></font>
+<a name="line164">164</a>         <font color="#2040a0">r</font> <font color="4444FF">+</font><font color="4444FF">=</font> <font color="#2040a0">prob_cls</font><font color="4444FF">[</font><font color="#2040a0">inst</font><font color="4444FF">]</font><font color="4444FF">[</font><font color="#2040a0">cls</font><font color="4444FF">]</font><font color="4444FF">;</font>
+<a name="line165">165</a>       <font color="4444FF"><strong>}</strong></font>
+<a name="line166">166</a>     <font color="4444FF"><strong>}</strong></font>
+<a name="line167">167</a>     <font color="#2040a0">fprintf</font><font color="4444FF">(</font><font color="#2040a0">outputs</font><font color="4444FF">[</font><font color="#2040a0">b</font><font color="4444FF">]</font>, <font color="#008000">"%f<font color="#77dd77">\t</font>%f<font color="#77dd77">\n</font>"</font>, <font color="#2040a0">data</font><font color="4444FF">[</font><font color="#2040a0">inst</font><font color="4444FF">]</font>.<font color="#2040a0">x</font>, <font color="#2040a0">data</font><font color="4444FF">[</font><font color="#2040a0">inst</font><font color="4444FF">]</font>.<font color="#2040a0">y</font><font color="4444FF">)</font><font color="4444FF">;</font>
+<a name="line168">168</a>   <font color="4444FF"><strong>}</strong></font>
+<a name="line169">169</a> 
+<a name="line170">170</a>   <strong>for</strong><font color="4444FF">(</font><strong>unsigned</strong> <strong>int</strong> <font color="#2040a0">cls</font><font color="4444FF">=</font><font color="#FF0000">0</font><font color="4444FF">;</font> <font color="#2040a0">cls</font><font color="4444FF">&lt;</font><font color="#2040a0">outputs</font>.<font color="#2040a0">size</font><font color="4444FF">(</font><font color="4444FF">)</font><font color="4444FF">;</font> <font color="4444FF">+</font><font color="4444FF">+</font><font color="#2040a0">cls</font><font color="4444FF">)</font><font color="4444FF"><strong>{</strong></font>
+<a name="line171">171</a>     <font color="#2040a0">fclose</font><font color="4444FF">(</font><font color="#2040a0">outputs</font><font color="4444FF">[</font><font color="#2040a0">cls</font><font color="4444FF">]</font><font color="4444FF">)</font><font color="4444FF">;</font>
+<a name="line172">172</a>   <font color="4444FF"><strong>}</strong></font>
+<a name="line173">173</a> 
+<a name="line174">174</a>   <strong>for</strong><font color="4444FF">(</font><strong>unsigned</strong> <strong>int</strong> <font color="#2040a0">cls</font><font color="4444FF">=</font><font color="#FF0000">0</font><font color="4444FF">;</font> <font color="#2040a0">cls</font><font color="4444FF">&lt;</font><font color="#2040a0">outputs</font>.<font color="#2040a0">size</font><font color="4444FF">(</font><font color="4444FF">)</font><font color="4444FF">;</font> <font color="4444FF">+</font><font color="4444FF">+</font><font color="#2040a0">cls</font><font color="4444FF">)</font><font color="4444FF"><strong>{</strong></font>
+<a name="line175">175</a>     <strong>char</strong> <font color="#2040a0">buffer</font><font color="4444FF">[</font><font color="#FF0000">50</font><font color="4444FF">]</font><font color="4444FF">;</font>
+<a name="line176">176</a>     <font color="#2040a0">sprintf</font><font color="4444FF">(</font><font color="#2040a0">buffer</font>, <font color="#008000">"cls%02del.txt"</font>, <font color="#2040a0">cls</font><font color="4444FF">)</font><font color="4444FF">;</font>
+<a name="line177">177</a>     <font color="#2040a0">FILE</font> <font color="4444FF">*</font> <font color="#2040a0">out</font> <font color="4444FF">=</font> <font color="#2040a0">fopen</font><font color="4444FF">(</font><font color="#2040a0">buffer</font>, <font color="#008000">"w"</font><font color="4444FF">)</font><font color="4444FF">;</font>
+<a name="line178">178</a> 
+<a name="line179">179</a>     <font color="#2040a0">V2</font> <font color="#2040a0">mean</font> <font color="4444FF">=</font> <font color="#2040a0">classes</font><font color="4444FF">[</font><font color="#2040a0">cls</font><font color="4444FF">]</font>.<font color="#2040a0">zv</font><font color="4444FF">(</font><font color="4444FF">)</font><font color="4444FF">;</font>
+<a name="line180">180</a>     <font color="#2040a0">M</font> <font color="#2040a0">cov</font><font color="4444FF">(</font><font color="#FF0000">2</font>,<font color="#FF0000">2</font><font color="4444FF">)</font><font color="4444FF">;</font>
+<a name="line181">181</a>     <font color="#2040a0">cov</font><font color="4444FF">(</font><font color="#FF0000">0</font>,<font color="#FF0000">0</font><font color="4444FF">)</font> <font color="4444FF">=</font> <font color="#2040a0">classes</font><font color="4444FF">[</font><font color="#2040a0">cls</font><font color="4444FF">]</font>.<font color="#2040a0">a</font><font color="4444FF">;</font>
+<a name="line182">182</a>     <font color="#2040a0">cov</font><font color="4444FF">(</font><font color="#FF0000">0</font>,<font color="#FF0000">1</font><font color="4444FF">)</font> <font color="4444FF">=</font> <font color="#2040a0">classes</font><font color="4444FF">[</font><font color="#2040a0">cls</font><font color="4444FF">]</font>.<font color="#2040a0">b</font><font color="4444FF">;</font>
+<a name="line183">183</a>     <font color="#2040a0">cov</font><font color="4444FF">(</font><font color="#FF0000">1</font>,<font color="#FF0000">0</font><font color="4444FF">)</font> <font color="4444FF">=</font> <font color="#2040a0">classes</font><font color="4444FF">[</font><font color="#2040a0">cls</font><font color="4444FF">]</font>.<font color="#2040a0">d</font><font color="4444FF">;</font>
+<a name="line184">184</a>     <font color="#2040a0">cov</font><font color="4444FF">(</font><font color="#FF0000">1</font>,<font color="#FF0000">1</font><font color="4444FF">)</font> <font color="4444FF">=</font> <font color="#2040a0">classes</font><font color="4444FF">[</font><font color="#2040a0">cls</font><font color="4444FF">]</font>.<font color="#2040a0">e</font><font color="4444FF">;</font>
+<a name="line185">185</a>     <font color="#2040a0">M</font> <font color="#2040a0">icov</font> <font color="4444FF">=</font> <font color="#2040a0">inv</font><font color="4444FF">(</font><font color="#2040a0">cov</font><font color="4444FF">)</font><font color="4444FF">;</font>
+<a name="line186">186</a>     
+<a name="line187">187</a>     <strong>double</strong> <font color="#2040a0">det</font> <font color="4444FF">=</font> <font color="#2040a0">classes</font><font color="4444FF">[</font><font color="#2040a0">cls</font><font color="4444FF">]</font>.<font color="#2040a0">a</font> <font color="4444FF">*</font> <font color="#2040a0">classes</font><font color="4444FF">[</font><font color="#2040a0">cls</font><font color="4444FF">]</font>.<font color="#2040a0">e</font> <font color="4444FF">-</font> <font color="#2040a0">classes</font><font color="4444FF">[</font><font color="#2040a0">cls</font><font color="4444FF">]</font>.<font color="#2040a0">b</font> <font color="4444FF">*</font> <font color="#2040a0">classes</font><font color="4444FF">[</font><font color="#2040a0">cls</font><font color="4444FF">]</font>.<font color="#2040a0">d</font><font color="4444FF">;</font>
+<a name="line188">188</a> 
+<a name="line189">189</a>     <strong>for</strong><font color="4444FF">(</font><strong>double</strong> <font color="#2040a0">th</font><font color="4444FF">=</font><font color="#FF0000">0</font><font color="4444FF">;</font> <font color="#2040a0">th</font><font color="4444FF">&lt;</font><font color="#FF0000">2</font><font color="4444FF">*</font><font color="#2040a0">M_PI</font><font color="4444FF">;</font> <font color="#2040a0">th</font><font color="4444FF">+</font><font color="4444FF">=</font><font color="#2040a0">M_PI</font>/<font color="#FF0000">128</font><font color="4444FF">)</font><font color="4444FF"><strong>{</strong></font>
+<a name="line190">190</a>         <font color="#2040a0">V2</font> <font color="#2040a0">v</font><font color="4444FF">(</font><font color="#2040a0">cos</font><font color="4444FF">(</font><font color="#2040a0">th</font><font color="4444FF">)</font>,<font color="#2040a0">sin</font><font color="4444FF">(</font><font color="#2040a0">th</font><font color="4444FF">)</font><font color="4444FF">)</font><font color="4444FF">;</font>
+<a name="line191">191</a> 
+<a name="line192">192</a>         <strong>double</strong> <font color="#2040a0">p</font> <font color="4444FF">=</font> <font color="#2040a0">tr</font><font color="4444FF">(</font><font color="4444FF">(</font><font color="#2040a0">M</font><font color="4444FF">)</font><font color="4444FF">(</font><font color="#2040a0">v</font><font color="4444FF">)</font><font color="4444FF">)</font> <font color="4444FF">*</font> <font color="#2040a0">icov</font> <font color="4444FF">*</font> <font color="4444FF">(</font><font color="4444FF">(</font><font color="#2040a0">M</font><font color="4444FF">)</font><font color="#2040a0">v</font><font color="4444FF">)</font><font color="4444FF">;</font>
+<a name="line193">193</a>         <font color="#2040a0">v</font> <font color="4444FF">=</font> <font color="#2040a0">v</font> <font color="4444FF">*</font> <font color="4444FF">(</font><font color="#FF0000">3</font>/<font color="#2040a0">sqrt</font><font color="4444FF">(</font><font color="#2040a0">p</font><font color="4444FF">)</font><font color="4444FF">)</font><font color="4444FF">;</font>
+<a name="line194">194</a> 
+<a name="line195">195</a>         <font color="#2040a0">fprintf</font><font color="4444FF">(</font><font color="#2040a0">out</font>, <font color="#008000">"%f<font color="#77dd77">\t</font>%f<font color="#77dd77">\n</font>"</font>, <font color="#2040a0">v</font>.<font color="#2040a0">x</font><font color="4444FF">+</font><font color="#2040a0">mean</font>.<font color="#2040a0">x</font>, <font color="#2040a0">v</font>.<font color="#2040a0">y</font><font color="4444FF">+</font><font color="#2040a0">mean</font>.<font color="#2040a0">y</font><font color="4444FF">)</font><font color="4444FF">;</font>
+<a name="line196">196</a>     <font color="4444FF"><strong>}</strong></font>
+<a name="line197">197</a>     <font color="#2040a0">fclose</font><font color="4444FF">(</font><font color="#2040a0">out</font><font color="4444FF">)</font><font color="4444FF">;</font>
+<a name="line198">198</a>     <font color="#2040a0">printf</font><font color="4444FF">(</font><font color="#008000">" '%s' with lines,"</font>, <font color="#2040a0">buffer</font><font color="4444FF">)</font><font color="4444FF">;</font>
+<a name="line199">199</a>   <font color="4444FF"><strong>}</strong></font>
+<a name="line200">200</a>   <font color="#2040a0">printf</font><font color="4444FF">(</font><font color="#008000">"<font color="#77dd77">\n</font><font color="#77dd77">\n</font>"</font><font color="4444FF">)</font><font color="4444FF">;</font>
+<a name="line201">201</a> 
+<a name="line202">202</a>   <strong>return</strong> <font color="#FF0000">0</font><font color="4444FF">;</font>
+<a name="line203">203</a> <font color="4444FF"><strong>}</strong></font>
+
+</pre>
+</td></tr></tbody></table>
+</td></tr></tbody></table>
+
+
+<br>
+<hr>
+<p align="center">
+  © 2000-now<br>
+  <a href="mailto:chris@jormungand.net">chris@jormungand.net</a>
+</p>
+
+</div>
+
+</body><style type="text/css">embed[type*="application/x-shockwave-flash"],embed[src*=".swf"],object[type*="application/x-shockwave-flash"],object[codetype*="application/x-shockwave-flash"],object[src*=".swf"],object[codebase*="swflash.cab"],object[classid*="D27CDB6E-AE6D-11cf-96B8-444553540000"],object[classid*="d27cdb6e-ae6d-11cf-96b8-444553540000"],object[classid*="D27CDB6E-AE6D-11cf-96B8-444553540000"]{	display: none !important;}</style></html>
