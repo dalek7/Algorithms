@@ -1,9 +1,12 @@
 // based on https://github.com/RainerKuemmerle/g2o/blob/master/g2o/examples/data_fitting/curve_fit.cpp
+// Tested
+// - Ubuntu 14.04
+// - OS X (10.9.5)
+//   : brew install homebrew/science/g2o
 // by Seung-Chan Kim
 
 #include <Eigen/Core>
 #include <iostream>
-
 #include "g2o/stuff/sampler.h"
 #include "g2o/stuff/command_args.h"
 #include "g2o/core/sparse_optimizer.h"
@@ -190,3 +193,14 @@ int main(int argc, char** argv)
 
     return 0;
 }
+
+/* Output: (under OS X)
+ Hello world!
+ 1
+ Target curve
+ a * exp(-lambda * x) + b
+ Iterative least squares solution
+ a      = 1.99602
+ b      = 0.403152
+ lambda = 0.200758
+ */
