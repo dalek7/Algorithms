@@ -29,9 +29,40 @@
 			</Target>
 		</Build>
 		<Compiler>
+			<Add option="-std=c++11" />
 			<Add option="-Wall" />
 			<Add option="-fexceptions" />
+			<Add directory="/usr/local/include/eigen3" />
 		</Compiler>
+		<Linker>
+			<Add library="/usr/local/lib/libg2o_cli.so" />
+			<Add library="/usr/local/lib/libg2o_core.so" />
+			<Add library="/usr/local/lib/libg2o_csparse_extension.so" />
+			<Add library="/usr/local/lib/libg2o_incremental.so" />
+			<Add library="/usr/local/lib/libg2o_interactive.so" />
+			<Add library="/usr/local/lib/libg2o_interface.so" />
+			<Add library="/usr/local/lib/libg2o_parser.so" />
+			<Add library="/usr/local/lib/libg2o_simulator.so" />
+			<Add library="/usr/local/lib/libg2o_solver_cholmod.so" />
+			<Add library="/usr/local/lib/libg2o_solver_csparse.so" />
+			<Add library="/usr/local/lib/libg2o_solver_dense.so" />
+			<Add library="/usr/local/lib/libg2o_solver_eigen.so" />
+			<Add library="/usr/local/lib/libg2o_solver_pcg.so" />
+			<Add library="/usr/local/lib/libg2o_solver_slam2d_linear.so" />
+			<Add library="/usr/local/lib/libg2o_solver_structure_only.so" />
+			<Add library="/usr/local/lib/libg2o_stuff.so" />
+			<Add library="/usr/local/lib/libg2o_types_data.so" />
+			<Add library="/usr/local/lib/libg2o_types_icp.so" />
+			<Add library="/usr/local/lib/libg2o_types_sba.so" />
+			<Add library="/usr/local/lib/libg2o_types_sclam2d.so" />
+			<Add library="/usr/local/lib/libg2o_types_sim3.so" />
+			<Add library="/usr/local/lib/libg2o_types_slam2d.so" />
+			<Add library="/usr/local/lib/libg2o_types_slam2d_addons.so" />
+			<Add library="/usr/local/lib/libg2o_types_slam3d.so" />
+			<Add library="/usr/local/lib/libg2o_types_slam3d_addons.so" />
+			<Add library="/usr/local/lib/libg2o_viewer.so" />
+			<Add directory="/usr/local/lib" />
+		</Linker>
 		<Unit filename="main.cpp" />
 		<Extensions>
 			<code_completion />
