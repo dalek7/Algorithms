@@ -94,6 +94,7 @@ int main(int argc, char** argv)
     vector<EdgeSE3*> odometryEdges;
     vector<EdgeSE3*> edges;
     int id = 0;
+    FILE *fp = fopen("out_t.txt", "w+");
     for (int f = 0; f < numLaps; ++f)
     {
         for (int n = 0; n < nodesPerLevel; ++n)
@@ -108,11 +109,19 @@ int main(int argc, char** argv)
             Eigen::Isometry3d t;
             t = rot;
             t.translation() = t.linear() * Eigen::Vector3d(radius, 0, 0);
+            cout << t.translation().transpose() <<endl;;
             v->setEstimate(t);
             vertices.push_back(v);
+
+            //row-wise
+            fprintf(fp, "%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\n",
+                        t(0,0), t(0,1),t(0,2), t(0,3),
+                        t(1,0), t(1,1),t(1,2), t(1,3),
+                        t(2,0), t(2,1),t(2,2), t(2,3),
+                        t(3,0), t(3,1),t(3,2), t(3,3) );
         }
     }
-
+    fclose(fp);
 
 
 
