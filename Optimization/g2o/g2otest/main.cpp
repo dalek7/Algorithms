@@ -87,6 +87,35 @@ int main(int argc, char** argv)
     cout << "information =" <<endl;
     cout << information << endl;
 
+
+    cout << "numLaps (how many times the robot travels around the sphere) = " << numLaps << endl;
+    cout << "nodesPerLevel (how many nodes per lap on the sphere) = " << nodesPerLevel << endl;
+    vector<VertexSE3*> vertices;
+    vector<EdgeSE3*> odometryEdges;
+    vector<EdgeSE3*> edges;
+    int id = 0;
+    for (int f = 0; f < numLaps; ++f)
+    {
+        for (int n = 0; n < nodesPerLevel; ++n)
+        {
+            VertexSE3* v = new VertexSE3;
+            v->setId(id++);
+
+            Eigen::AngleAxisd rotz(-M_PI + 2*n*M_PI / nodesPerLevel, Eigen::Vector3d::UnitZ());
+            Eigen::AngleAxisd roty(-0.5*M_PI + id*M_PI / (numLaps * nodesPerLevel), Eigen::Vector3d::UnitY());
+            Eigen::Matrix3d rot = (rotz * roty).toRotationMatrix();
+
+            Eigen::Isometry3d t;
+            t = rot;
+            t.translation() = t.linear() * Eigen::Vector3d(radius, 0, 0);
+            v->setEstimate(t);
+            vertices.push_back(v);
+        }
+    }
+
+
+
+
     cout << "Hello world!" << endl;
     return 0;
 }
