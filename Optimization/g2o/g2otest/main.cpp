@@ -1,6 +1,6 @@
 
 // based on https://github.com/RainerKuemmerle/g2o/blob/master/g2o/examples/sphere/create_sphere.cpp
-// written by Seung-Chan Kim
+// Created by Seung-Chan Kim on 12/29/16.
 
 
 #include <iostream>
@@ -125,6 +125,6 @@ int main(int argc, char** argv)
 
 
 
-    cout << "Hello world!" << endl;
+    cout << "Hello world!!! " << endl;
     return 0;
 }
