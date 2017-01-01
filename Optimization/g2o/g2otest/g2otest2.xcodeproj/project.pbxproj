@@ -51,33 +51,33 @@
 
 /* Begin PBXFileReference section */
 		24AAB4A21E14810400090835 /* g2otest2 */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = g2otest2; sourceTree = BUILT_PRODUCTS_DIR; };
-		24C2351F1E17DC880083E06C /* libg2o_cli.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libg2o_cli.dylib; path = "../../../../../../../usr/local/Cellar/g2o/2016-04-24/lib/libg2o_cli.dylib"; sourceTree = "<group>"; };
-		24C235201E17DC880083E06C /* libg2o_core.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libg2o_core.dylib; path = "../../../../../../../usr/local/Cellar/g2o/2016-04-24/lib/libg2o_core.dylib"; sourceTree = "<group>"; };
-		24C235211E17DC880083E06C /* libg2o_csparse_extension.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libg2o_csparse_extension.dylib; path = "../../../../../../../usr/local/Cellar/g2o/2016-04-24/lib/libg2o_csparse_extension.dylib"; sourceTree = "<group>"; };
-		24C235221E17DC880083E06C /* libg2o_ext_freeglut_minimal.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libg2o_ext_freeglut_minimal.dylib; path = "../../../../../../../usr/local/Cellar/g2o/2016-04-24/lib/libg2o_ext_freeglut_minimal.dylib"; sourceTree = "<group>"; };
-		24C235231E17DC880083E06C /* libg2o_incremental.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libg2o_incremental.dylib; path = "../../../../../../../usr/local/Cellar/g2o/2016-04-24/lib/libg2o_incremental.dylib"; sourceTree = "<group>"; };
-		24C235241E17DC880083E06C /* libg2o_interactive.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libg2o_interactive.dylib; path = "../../../../../../../usr/local/Cellar/g2o/2016-04-24/lib/libg2o_interactive.dylib"; sourceTree = "<group>"; };
-		24C235251E17DC890083E06C /* libg2o_interface.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libg2o_interface.dylib; path = "../../../../../../../usr/local/Cellar/g2o/2016-04-24/lib/libg2o_interface.dylib"; sourceTree = "<group>"; };
-		24C235261E17DC890083E06C /* libg2o_opengl_helper.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libg2o_opengl_helper.dylib; path = "../../../../../../../usr/local/Cellar/g2o/2016-04-24/lib/libg2o_opengl_helper.dylib"; sourceTree = "<group>"; };
-		24C235271E17DC890083E06C /* libg2o_parser.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libg2o_parser.dylib; path = "../../../../../../../usr/local/Cellar/g2o/2016-04-24/lib/libg2o_parser.dylib"; sourceTree = "<group>"; };
-		24C235281E17DC890083E06C /* libg2o_simulator.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libg2o_simulator.dylib; path = "../../../../../../../usr/local/Cellar/g2o/2016-04-24/lib/libg2o_simulator.dylib"; sourceTree = "<group>"; };
-		24C235291E17DC890083E06C /* libg2o_solver_cholmod.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libg2o_solver_cholmod.dylib; path = "../../../../../../../usr/local/Cellar/g2o/2016-04-24/lib/libg2o_solver_cholmod.dylib"; sourceTree = "<group>"; };
-		24C2352A1E17DC890083E06C /* libg2o_solver_csparse.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libg2o_solver_csparse.dylib; path = "../../../../../../../usr/local/Cellar/g2o/2016-04-24/lib/libg2o_solver_csparse.dylib"; sourceTree = "<group>"; };
-		24C2352B1E17DC890083E06C /* libg2o_solver_dense.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libg2o_solver_dense.dylib; path = "../../../../../../../usr/local/Cellar/g2o/2016-04-24/lib/libg2o_solver_dense.dylib"; sourceTree = "<group>"; };
-		24C2352C1E17DC890083E06C /* libg2o_solver_eigen.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libg2o_solver_eigen.dylib; path = "../../../../../../../usr/local/Cellar/g2o/2016-04-24/lib/libg2o_solver_eigen.dylib"; sourceTree = "<group>"; };
-		24C2352D1E17DC890083E06C /* libg2o_solver_pcg.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libg2o_solver_pcg.dylib; path = "../../../../../../../usr/local/Cellar/g2o/2016-04-24/lib/libg2o_solver_pcg.dylib"; sourceTree = "<group>"; };
-		24C2352E1E17DC890083E06C /* libg2o_solver_slam2d_linear.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libg2o_solver_slam2d_linear.dylib; path = "../../../../../../../usr/local/Cellar/g2o/2016-04-24/lib/libg2o_solver_slam2d_linear.dylib"; sourceTree = "<group>"; };
-		24C2352F1E17DC890083E06C /* libg2o_solver_structure_only.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libg2o_solver_structure_only.dylib; path = "../../../../../../../usr/local/Cellar/g2o/2016-04-24/lib/libg2o_solver_structure_only.dylib"; sourceTree = "<group>"; };
-		24C235301E17DC890083E06C /* libg2o_stuff.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libg2o_stuff.dylib; path = "../../../../../../../usr/local/Cellar/g2o/2016-04-24/lib/libg2o_stuff.dylib"; sourceTree = "<group>"; };
-		24C235431E17DCA30083E06C /* libg2o_types_data.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libg2o_types_data.dylib; path = "../../../../../../../usr/local/Cellar/g2o/2016-04-24/lib/libg2o_types_data.dylib"; sourceTree = "<group>"; };
-		24C235441E17DCA30083E06C /* libg2o_types_icp.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libg2o_types_icp.dylib; path = "../../../../../../../usr/local/Cellar/g2o/2016-04-24/lib/libg2o_types_icp.dylib"; sourceTree = "<group>"; };
-		24C235451E17DCA30083E06C /* libg2o_types_sba.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libg2o_types_sba.dylib; path = "../../../../../../../usr/local/Cellar/g2o/2016-04-24/lib/libg2o_types_sba.dylib"; sourceTree = "<group>"; };
-		24C235461E17DCA30083E06C /* libg2o_types_sclam2d.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libg2o_types_sclam2d.dylib; path = "../../../../../../../usr/local/Cellar/g2o/2016-04-24/lib/libg2o_types_sclam2d.dylib"; sourceTree = "<group>"; };
-		24C235471E17DCA30083E06C /* libg2o_types_sim3.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libg2o_types_sim3.dylib; path = "../../../../../../../usr/local/Cellar/g2o/2016-04-24/lib/libg2o_types_sim3.dylib"; sourceTree = "<group>"; };
-		24C235481E17DCA30083E06C /* libg2o_types_slam2d_addons.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libg2o_types_slam2d_addons.dylib; path = "../../../../../../../usr/local/Cellar/g2o/2016-04-24/lib/libg2o_types_slam2d_addons.dylib"; sourceTree = "<group>"; };
-		24C235491E17DCA30083E06C /* libg2o_types_slam2d.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libg2o_types_slam2d.dylib; path = "../../../../../../../usr/local/Cellar/g2o/2016-04-24/lib/libg2o_types_slam2d.dylib"; sourceTree = "<group>"; };
-		24C2354A1E17DCA30083E06C /* libg2o_types_slam3d_addons.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libg2o_types_slam3d_addons.dylib; path = "../../../../../../../usr/local/Cellar/g2o/2016-04-24/lib/libg2o_types_slam3d_addons.dylib"; sourceTree = "<group>"; };
-		24C2354B1E17DCA30083E06C /* libg2o_types_slam3d.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libg2o_types_slam3d.dylib; path = "../../../../../../../usr/local/Cellar/g2o/2016-04-24/lib/libg2o_types_slam3d.dylib"; sourceTree = "<group>"; };
+		24C2351F1E17DC880083E06C /* libg2o_cli.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libg2o_cli.dylib; path = "/usr/local/Cellar/g2o/2016-04-24/lib/libg2o_cli.dylib"; sourceTree = "<absolute>"; };
+		24C235201E17DC880083E06C /* libg2o_core.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libg2o_core.dylib; path = "/usr/local/Cellar/g2o/2016-04-24/lib/libg2o_core.dylib"; sourceTree = "<absolute>"; };
+		24C235211E17DC880083E06C /* libg2o_csparse_extension.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libg2o_csparse_extension.dylib; path = "/usr/local/Cellar/g2o/2016-04-24/lib/libg2o_csparse_extension.dylib"; sourceTree = "<absolute>"; };
+		24C235221E17DC880083E06C /* libg2o_ext_freeglut_minimal.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libg2o_ext_freeglut_minimal.dylib; path = "/usr/local/Cellar/g2o/2016-04-24/lib/libg2o_ext_freeglut_minimal.dylib"; sourceTree = "<absolute>"; };
+		24C235231E17DC880083E06C /* libg2o_incremental.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libg2o_incremental.dylib; path = "/usr/local/Cellar/g2o/2016-04-24/lib/libg2o_incremental.dylib"; sourceTree = "<absolute>"; };
+		24C235241E17DC880083E06C /* libg2o_interactive.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libg2o_interactive.dylib; path = "/usr/local/Cellar/g2o/2016-04-24/lib/libg2o_interactive.dylib"; sourceTree = "<absolute>"; };
+		24C235251E17DC890083E06C /* libg2o_interface.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libg2o_interface.dylib; path = "/usr/local/Cellar/g2o/2016-04-24/lib/libg2o_interface.dylib"; sourceTree = "<absolute>"; };
+		24C235261E17DC890083E06C /* libg2o_opengl_helper.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libg2o_opengl_helper.dylib; path = "/usr/local/Cellar/g2o/2016-04-24/lib/libg2o_opengl_helper.dylib"; sourceTree = "<absolute>"; };
+		24C235271E17DC890083E06C /* libg2o_parser.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libg2o_parser.dylib; path = "/usr/local/Cellar/g2o/2016-04-24/lib/libg2o_parser.dylib"; sourceTree = "<absolute>"; };
+		24C235281E17DC890083E06C /* libg2o_simulator.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libg2o_simulator.dylib; path = "/usr/local/Cellar/g2o/2016-04-24/lib/libg2o_simulator.dylib"; sourceTree = "<absolute>"; };
+		24C235291E17DC890083E06C /* libg2o_solver_cholmod.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libg2o_solver_cholmod.dylib; path = "/usr/local/Cellar/g2o/2016-04-24/lib/libg2o_solver_cholmod.dylib"; sourceTree = "<absolute>"; };
+		24C2352A1E17DC890083E06C /* libg2o_solver_csparse.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libg2o_solver_csparse.dylib; path = "/usr/local/Cellar/g2o/2016-04-24/lib/libg2o_solver_csparse.dylib"; sourceTree = "<absolute>"; };
+		24C2352B1E17DC890083E06C /* libg2o_solver_dense.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libg2o_solver_dense.dylib; path = "/usr/local/Cellar/g2o/2016-04-24/lib/libg2o_solver_dense.dylib"; sourceTree = "<absolute>"; };
+		24C2352C1E17DC890083E06C /* libg2o_solver_eigen.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libg2o_solver_eigen.dylib; path = "/usr/local/Cellar/g2o/2016-04-24/lib/libg2o_solver_eigen.dylib"; sourceTree = "<absolute>"; };
+		24C2352D1E17DC890083E06C /* libg2o_solver_pcg.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libg2o_solver_pcg.dylib; path = "/usr/local/Cellar/g2o/2016-04-24/lib/libg2o_solver_pcg.dylib"; sourceTree = "<absolute>"; };
+		24C2352E1E17DC890083E06C /* libg2o_solver_slam2d_linear.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libg2o_solver_slam2d_linear.dylib; path = "/usr/local/Cellar/g2o/2016-04-24/lib/libg2o_solver_slam2d_linear.dylib"; sourceTree = "<absolute>"; };
+		24C2352F1E17DC890083E06C /* libg2o_solver_structure_only.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libg2o_solver_structure_only.dylib; path = "/usr/local/Cellar/g2o/2016-04-24/lib/libg2o_solver_structure_only.dylib"; sourceTree = "<absolute>"; };
+		24C235301E17DC890083E06C /* libg2o_stuff.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libg2o_stuff.dylib; path = "/usr/local/Cellar/g2o/2016-04-24/lib/libg2o_stuff.dylib"; sourceTree = "<absolute>"; };
+		24C235431E17DCA30083E06C /* libg2o_types_data.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libg2o_types_data.dylib; path = "/usr/local/Cellar/g2o/2016-04-24/lib/libg2o_types_data.dylib"; sourceTree = "<absolute>"; };
+		24C235441E17DCA30083E06C /* libg2o_types_icp.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libg2o_types_icp.dylib; path = "/usr/local/Cellar/g2o/2016-04-24/lib/libg2o_types_icp.dylib"; sourceTree = "<absolute>"; };
+		24C235451E17DCA30083E06C /* libg2o_types_sba.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libg2o_types_sba.dylib; path = "/usr/local/Cellar/g2o/2016-04-24/lib/libg2o_types_sba.dylib"; sourceTree = "<absolute>"; };
+		24C235461E17DCA30083E06C /* libg2o_types_sclam2d.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libg2o_types_sclam2d.dylib; path = "/usr/local/Cellar/g2o/2016-04-24/lib/libg2o_types_sclam2d.dylib"; sourceTree = "<absolute>"; };
+		24C235471E17DCA30083E06C /* libg2o_types_sim3.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libg2o_types_sim3.dylib; path = "/usr/local/Cellar/g2o/2016-04-24/lib/libg2o_types_sim3.dylib"; sourceTree = "<absolute>"; };
+		24C235481E17DCA30083E06C /* libg2o_types_slam2d_addons.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libg2o_types_slam2d_addons.dylib; path = "/usr/local/Cellar/g2o/2016-04-24/lib/libg2o_types_slam2d_addons.dylib"; sourceTree = "<absolute>"; };
+		24C235491E17DCA30083E06C /* libg2o_types_slam2d.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libg2o_types_slam2d.dylib; path = "/usr/local/Cellar/g2o/2016-04-24/lib/libg2o_types_slam2d.dylib"; sourceTree = "<absolute>"; };
+		24C2354A1E17DCA30083E06C /* libg2o_types_slam3d_addons.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libg2o_types_slam3d_addons.dylib; path = "/usr/local/Cellar/g2o/2016-04-24/lib/libg2o_types_slam3d_addons.dylib"; sourceTree = "<absolute>"; };
+		24C2354B1E17DCA30083E06C /* libg2o_types_slam3d.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libg2o_types_slam3d.dylib; path = "/usr/local/Cellar/g2o/2016-04-24/lib/libg2o_types_slam3d.dylib"; sourceTree = "<absolute>"; };
 		24E595141E1481AC00D4517F /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
@@ -122,6 +122,31 @@
 		24AAB4991E14810400090835 = {
 			isa = PBXGroup;
 			children = (
+				24FF47411E18850E0088D529 /* lib */,
+				24AAB4A41E14810400090835 /* g2otest2 */,
+				24AAB4A31E14810400090835 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		24AAB4A31E14810400090835 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				24AAB4A21E14810400090835 /* g2otest2 */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		24AAB4A41E14810400090835 /* g2otest2 */ = {
+			isa = PBXGroup;
+			children = (
+				24E595141E1481AC00D4517F /* main.cpp */,
+			);
+			path = g2otest2;
+			sourceTree = "<group>";
+		};
+		24FF47411E18850E0088D529 /* lib */ = {
+			isa = PBXGroup;
+			children = (
 				24C235431E17DCA30083E06C /* libg2o_types_data.dylib */,
 				24C235441E17DCA30083E06C /* libg2o_types_icp.dylib */,
 				24C235451E17DCA30083E06C /* libg2o_types_sba.dylib */,
@@ -149,25 +174,8 @@
 				24C2352E1E17DC890083E06C /* libg2o_solver_slam2d_linear.dylib */,
 				24C2352F1E17DC890083E06C /* libg2o_solver_structure_only.dylib */,
 				24C235301E17DC890083E06C /* libg2o_stuff.dylib */,
-				24AAB4A41E14810400090835 /* g2otest2 */,
-				24AAB4A31E14810400090835 /* Products */,
 			);
-			sourceTree = "<group>";
-		};
-		24AAB4A31E14810400090835 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				24AAB4A21E14810400090835 /* g2otest2 */,
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
-		24AAB4A41E14810400090835 /* g2otest2 */ = {
-			isa = PBXGroup;
-			children = (
-				24E595141E1481AC00D4517F /* main.cpp */,
-			);
-			path = g2otest2;
+			name = lib;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */

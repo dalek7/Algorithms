@@ -109,7 +109,7 @@ int main(int argc, char** argv)
             Eigen::Isometry3d t;
             t = rot;
             t.translation() = t.linear() * Eigen::Vector3d(radius, 0, 0);
-            cout << t.translation().transpose() <<endl;;
+            //cout << t.translation().transpose() <<endl;;
             v->setEstimate(t);
             vertices.push_back(v);
 
@@ -123,7 +123,50 @@ int main(int argc, char** argv)
     }
     fclose(fp);
 
+    // generate odometry edges
+    for (size_t i = 1; i < vertices.size(); ++i) {
+        VertexSE3* prev = vertices[i-1];
+        VertexSE3* cur  = vertices[i];
+        Eigen::Isometry3d t = prev->estimate().inverse() * cur->estimate();
+        EdgeSE3* e = new EdgeSE3;
+        e->setVertex(0, prev);
+        e->setVertex(1, cur);
+        e->setMeasurement(t);
+        e->setInformation(information);
+        odometryEdges.push_back(e);
+        edges.push_back(e);
+    }
 
+    // generate loop closure edges
+    fp = fopen("out_loopclosure_from+to.txt", "w+");
+    for (int f = 1; f < numLaps; ++f) {
+        for (int nn = 0; nn < nodesPerLevel; ++nn) {
+            VertexSE3* from = vertices[(f-1)*nodesPerLevel + nn];
+            //row-wise
+            Eigen::Isometry3d tf = from->estimate();
+            //fprintf(fp, "%f\t%f\t%f\t%f\t\t", tf(0,3),tf(1,3),tf(2,3),tf(3,3) );
+
+            
+            for (int n = -1; n <= 1; ++n)
+            {
+                if (f == numLaps-1 && n == 1)
+                    continue;
+                VertexSE3* to   = vertices[f*nodesPerLevel + nn + n];
+                Eigen::Isometry3d t = from->estimate().inverse() * to->estimate();
+                EdgeSE3* e = new EdgeSE3;
+                e->setVertex(0, from);
+                e->setVertex(1, to);
+                e->setMeasurement(t);
+                e->setInformation(information);
+                edges.push_back(e);
+                Eigen::Isometry3d tt = to->estimate();
+                fprintf(fp, "%f\t%f\t%f\t%f\t\t",   tf(0,3),tf(1,3),tf(2,3),tf(3,3) );
+                fprintf(fp, "%f\t%f\t%f\t%f\n",     tt(0,3),tt(1,3),tt(2,3),tt(3,3) );
+            }
+            //fprintf(fp, "\n");
+        }
+    }
+    fclose(fp);
 
     cout << "Hello world!!! " << endl;
     return 0;
