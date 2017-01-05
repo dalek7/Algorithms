@@ -67,6 +67,12 @@ int main(int argc, char** argv)
     cerr << endl;
 
     Eigen::Matrix3d transNoise = Eigen::Matrix3d::Zero();
+    /*
+     0 0 0
+     0 0 0
+     0 0 0
+     */
+     
     for (int i = 0; i < 3; ++i)
     transNoise(i, i) = std::pow(noiseTranslation[i], 2);
 
@@ -84,15 +90,17 @@ int main(int argc, char** argv)
     information.block<3,3>(0,0) = transNoise.inverse();
     information.block<3,3>(3,3) = rotNoise.inverse();
 
+    // information matrix represents how reliable this measurement is. Therefore, the more precisely the measurement is made or the more you trust in this measurement, the larger values in the information matrix you can set. (see http://fzheng.me/2016/03/15/g2o-demo/ )
     cout << "information =" <<endl;
     cout << information << endl;
 
-
     cout << "numLaps (how many times the robot travels around the sphere) = " << numLaps << endl;
     cout << "nodesPerLevel (how many nodes per lap on the sphere) = " << nodesPerLevel << endl;
+
     vector<VertexSE3*> vertices;
     vector<EdgeSE3*> odometryEdges;
     vector<EdgeSE3*> edges;
+    
     int id = 0;
     FILE *fp = fopen("out_t.txt", "w+");
     for (int f = 0; f < numLaps; ++f)
@@ -144,14 +152,13 @@ int main(int argc, char** argv)
             VertexSE3* from = vertices[(f-1)*nodesPerLevel + nn];
             //row-wise
             Eigen::Isometry3d tf = from->estimate();
-            //fprintf(fp, "%f\t%f\t%f\t%f\t\t", tf(0,3),tf(1,3),tf(2,3),tf(3,3) );
-
             
-            for (int n = -1; n <= 1; ++n)
+            for (int n = -1; n <= 1; ++n) // set three vertices
             {
                 if (f == numLaps-1 && n == 1)
                     continue;
-                VertexSE3* to   = vertices[f*nodesPerLevel + nn + n];
+            //  VertexSE3* from = vertices[(f-1)*nodesPerLevel + nn];
+                VertexSE3* to   = vertices[f*nodesPerLevel + nn + n]; // one-level위에서 3개의 vertices와 연결
                 Eigen::Isometry3d t = from->estimate().inverse() * to->estimate();
                 EdgeSE3* e = new EdgeSE3;
                 e->setVertex(0, from);
@@ -167,7 +174,53 @@ int main(int argc, char** argv)
         }
     }
     fclose(fp);
+    
+    GaussianSampler<Eigen::Vector3d, Eigen::Matrix3d> transSampler;
+    transSampler.setDistribution(transNoise);
+    GaussianSampler<Eigen::Vector3d, Eigen::Matrix3d> rotSampler;
+    rotSampler.setDistribution(rotNoise);
+    
+#if 0
+    if (randomSeed)
+    {
+        std::random_device r;
+        std::seed_seq seedSeq{r(), r(), r(), r(), r()};
+        vector<int> seeds(2);
+        seedSeq.generate(seeds.begin(), seeds.end());
+        cerr << "using seeds:";
+        for (size_t i = 0; i < seeds.size(); ++i)
+            cerr << " " << seeds[i];
+        cerr << endl;
+        transSampler.seed(seeds[0]); // error ?
+        rotSampler.seed(seeds[1]);
+    }
+#endif
+    
+    // noise for all the edges
+    for (size_t i = 0; i < edges.size(); ++i) {
+        EdgeSE3* e = edges[i];
+        Eigen::Quaterniond gtQuat = (Eigen::Quaterniond)e->measurement().linear();
+        Eigen::Vector3d gtTrans = e->measurement().translation();
+        
+        Eigen::Vector3d quatXYZ = rotSampler.generateSample();
+        double qw = 1.0 - quatXYZ.norm();
+        if (qw < 0) {
+            qw = 0.;
+            cerr << "x";
+        }
+        Eigen::Quaterniond rot(qw, quatXYZ.x(), quatXYZ.y(), quatXYZ.z());
+        rot.normalize();
+        Eigen::Vector3d trans = transSampler.generateSample();
+        rot = gtQuat * rot;
+        trans = gtTrans + trans;
+        
+        Eigen::Isometry3d noisyMeasurement = (Eigen::Isometry3d) rot;
+        noisyMeasurement.translation() = trans;
+        e->setMeasurement(noisyMeasurement);
+    }
 
+    
+    
     cout << "Hello world!!! " << endl;
     return 0;
 }
