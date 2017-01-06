@@ -197,14 +197,16 @@ int main(int argc, char** argv)
 #endif
     
     // noise for all the edges
-    for (size_t i = 0; i < edges.size(); ++i) {
+    for (size_t i = 0; i < edges.size(); ++i)
+    {
         EdgeSE3* e = edges[i];
         Eigen::Quaterniond gtQuat = (Eigen::Quaterniond)e->measurement().linear();
         Eigen::Vector3d gtTrans = e->measurement().translation();
         
         Eigen::Vector3d quatXYZ = rotSampler.generateSample();
         double qw = 1.0 - quatXYZ.norm();
-        if (qw < 0) {
+        if (qw < 0)
+        {
             qw = 0.;
             cerr << "x";
         }
@@ -219,6 +221,17 @@ int main(int argc, char** argv)
         e->setMeasurement(noisyMeasurement);
     }
 
+    
+    // concatenate all the odometry constraints to compute the initial state
+    for (size_t i =0; i < odometryEdges.size(); ++i)
+    {
+        EdgeSE3* e = edges[i];
+        VertexSE3* from = static_cast<VertexSE3*>(e->vertex(0));
+        VertexSE3* to = static_cast<VertexSE3*>(e->vertex(1));
+        HyperGraph::VertexSet aux;
+        aux.insert(from);
+        e->initialEstimate(aux, to);
+    }
     
     
     cout << "Hello world!!! " << endl;
