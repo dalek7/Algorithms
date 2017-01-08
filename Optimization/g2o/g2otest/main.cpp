@@ -238,16 +238,41 @@ int main(int argc, char** argv)
     ofstream fileOutputStream;
     if (outFilename != "-")
     {
-        cerr << "Writing into " << outFilename << endl;
-        fileOutputStream.open(outFilename.c_str());
+        //cerr << "Writing into " << outFilename << endl;
+        //fileOutputStream.open(outFilename.c_str());
     }
     else
     {
-        cerr << "writing to stdout" << endl;
+        //cerr << "writing to stdout" << endl;
+        outFilename = "out_vertex+edge.txt";
+
+    }
+    cerr << "Writing into " << outFilename << endl;
+    fileOutputStream.open(outFilename.c_str());
+
+    string vertexTag = Factory::instance()->tag(vertices[0]);
+    string edgeTag = Factory::instance()->tag(edges[0]);
+
+    ostream& fout = outFilename != "-" ? fileOutputStream : cout;
+    for (size_t i = 0; i < vertices.size(); ++i)
+    {
+        VertexSE3* v = vertices[i];
+        fout << vertexTag << " " << v->id() << " ";
+        v->write(fout);
+        fout << endl;
     }
 
 
+    for (size_t i = 0; i < edges.size(); ++i)
+    {
+        EdgeSE3* e = edges[i];
+        VertexSE3* from = static_cast<VertexSE3*>(e->vertex(0));
+        VertexSE3* to = static_cast<VertexSE3*>(e->vertex(1));
+        fout << edgeTag << " " << from->id() << " " << to->id() << " ";
+        e->write(fout);
+        fout << endl;
+    }
 
-    cout << "Hello world!!! " << endl;
+    cout << "Done!!! " << endl;
     return 0;
 }
