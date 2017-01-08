@@ -72,7 +72,7 @@ int main(int argc, char** argv)
      0 0 0
      0 0 0
      */
-     
+
     for (int i = 0; i < 3; ++i)
     transNoise(i, i) = std::pow(noiseTranslation[i], 2);
 
@@ -100,7 +100,7 @@ int main(int argc, char** argv)
     vector<VertexSE3*> vertices;
     vector<EdgeSE3*> odometryEdges;
     vector<EdgeSE3*> edges;
-    
+
     int id = 0;
     FILE *fp = fopen("out_t.txt", "w+");
     for (int f = 0; f < numLaps; ++f)
@@ -152,7 +152,7 @@ int main(int argc, char** argv)
             VertexSE3* from = vertices[(f-1)*nodesPerLevel + nn];
             //row-wise
             Eigen::Isometry3d tf = from->estimate();
-            
+
             for (int n = -1; n <= 1; ++n) // set three vertices
             {
                 if (f == numLaps-1 && n == 1)
@@ -174,12 +174,12 @@ int main(int argc, char** argv)
         }
     }
     fclose(fp);
-    
+
     GaussianSampler<Eigen::Vector3d, Eigen::Matrix3d> transSampler;
     transSampler.setDistribution(transNoise);
     GaussianSampler<Eigen::Vector3d, Eigen::Matrix3d> rotSampler;
     rotSampler.setDistribution(rotNoise);
-    
+
 #if 0
     if (randomSeed)
     {
@@ -195,14 +195,14 @@ int main(int argc, char** argv)
         rotSampler.seed(seeds[1]);
     }
 #endif
-    
+
     // noise for all the edges
     for (size_t i = 0; i < edges.size(); ++i)
     {
         EdgeSE3* e = edges[i];
         Eigen::Quaterniond gtQuat = (Eigen::Quaterniond)e->measurement().linear();
         Eigen::Vector3d gtTrans = e->measurement().translation();
-        
+
         Eigen::Vector3d quatXYZ = rotSampler.generateSample();
         double qw = 1.0 - quatXYZ.norm();
         if (qw < 0)
@@ -215,14 +215,15 @@ int main(int argc, char** argv)
         Eigen::Vector3d trans = transSampler.generateSample();
         rot = gtQuat * rot;
         trans = gtTrans + trans;
-        
+
         Eigen::Isometry3d noisyMeasurement = (Eigen::Isometry3d) rot;
         noisyMeasurement.translation() = trans;
         e->setMeasurement(noisyMeasurement);
     }
 
-    
+
     // concatenate all the odometry constraints to compute the initial state
+    // An hyper graph is a graph where an edge can connect one or more nodes.
     for (size_t i =0; i < odometryEdges.size(); ++i)
     {
         EdgeSE3* e = edges[i];
@@ -232,8 +233,21 @@ int main(int argc, char** argv)
         aux.insert(from);
         e->initialEstimate(aux, to);
     }
-    
-    
+
+    // write output
+    ofstream fileOutputStream;
+    if (outFilename != "-")
+    {
+        cerr << "Writing into " << outFilename << endl;
+        fileOutputStream.open(outFilename.c_str());
+    }
+    else
+    {
+        cerr << "writing to stdout" << endl;
+    }
+
+
+
     cout << "Hello world!!! " << endl;
     return 0;
 }
