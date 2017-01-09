@@ -244,7 +244,7 @@ int main(int argc, char** argv)
     else
     {
         //cerr << "writing to stdout" << endl;
-        outFilename = "out_vertex+edge.txt";
+        outFilename = "out_vertex+edge.g2o";
 
     }
     cerr << "Writing into " << outFilename << endl;

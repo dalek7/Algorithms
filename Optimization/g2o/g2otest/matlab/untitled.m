@@ -5,6 +5,10 @@ B = load('out_loopclosure_from+to.txt');
 idx = 1:size(A, 1);
 idxsparse = GetSparseIDX(idx, 5);
 
+% default values
+nodesPerLevel = 50;
+numLaps = 50;
+
 H = zeros(4,4,size(A,1));
 for i=1:size(A,1)
    row  = A(i,:);
@@ -13,7 +17,7 @@ for i=1:size(A,1)
    
 end
 %% half of the data generated 
-draw_lc_edge = 0;
+draw_lc_edge = 2;
 if draw_lc_edge ==1,
     figure;
     plot3(H(1,4,1), H(2,4,1), H(3,4,1),'r*'); 
@@ -50,6 +54,40 @@ if draw_lc_edge ==1,
 
     end
 
+elseif draw_lc_edge ==2, % One per laps
+    figure;
+    plot3(H(1,4,1), H(2,4,1), H(3,4,1),'r*'); 
+
+    axis equal;
+    xlabel('X');
+    ylabel('Y');
+    zlabel('Z');
+    view(-28,60);
+    grid on;
+    hold on;
+    %for i=1:size(A,1) -1  
+    for i=1:size(A,1)/2
+        X = [H(1,4,i),   H(2,4,i),   H(3,4,i);
+             H(1,4,i+1), H(2,4,i+1), H(3,4,i+1)];
+        plot3(X(:,1,:), X(:,2,:), X(:,3,:),'b.-'); 
+
+    end
+
+    for i=1:nodesPerLevel*3:size(B,1)/2
+        if i>2 
+            for j=0:2,
+
+            X = [B(i+j,1),     B(i+j,2),     B(i+j,3);
+                 B(i+j,5),     B(i+j,6),     B(i+j,7)];
+            plot3(X(:,1,:), X(:,2,:), X(:,3,:),'r-'); 
+            plot3(X(1,1,:), X(1,2,:), X(1,3,:),'ro'); 
+            %k = waitforbuttonpress;
+            end
+        end
+    end
+
+   
+    
 end
 
 %%
