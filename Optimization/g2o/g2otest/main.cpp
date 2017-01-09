@@ -1,5 +1,7 @@
-
+// g2o sphere
 // based on https://github.com/RainerKuemmerle/g2o/blob/master/g2o/examples/sphere/create_sphere.cpp
+// reference 1 :  https://malcolmmielle.wordpress.com/2016/06/20/g2o-optimization/
+// reference 2 : http://fzheng.me/2016/03/15/g2o-demo/
 // Created by Seung-Chan Kim on 12/29/16.
 
 
