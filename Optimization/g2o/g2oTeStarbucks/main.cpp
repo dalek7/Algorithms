@@ -170,6 +170,7 @@ int main(int argc, char** argv)
     optimizer.setVerbose(verbose);
     optimizer.optimize(maxIterations);
 
+    //optimizer.save("a.g2o");
     if (verbose)
         cout << endl;
 
@@ -190,7 +191,7 @@ int main(int argc, char** argv)
     // clean up
     delete[] points;
 
-
+    
     return 0;
 }
 
