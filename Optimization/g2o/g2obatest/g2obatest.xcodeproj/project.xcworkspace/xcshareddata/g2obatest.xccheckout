@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>IDESourceControlProjectFavoriteDictionaryKey</key>
+	<false/>
+	<key>IDESourceControlProjectIdentifier</key>
+	<string>4C361544-0FE2-443D-8BDF-39B199DE9E8C</string>
+	<key>IDESourceControlProjectName</key>
+	<string>g2obatest</string>
+	<key>IDESourceControlProjectOriginsDictionary</key>
+	<dict>
+		<key>DB0F1ED94CDDC7438AA40A85C358531A89C4D55C</key>
+		<string>https://github.com/dalek7/Algorithms.git</string>
+	</dict>
+	<key>IDESourceControlProjectPath</key>
+	<string>Optimization/g2o/g2obatest/g2obatest.xcodeproj</string>
+	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
+	<dict>
+		<key>DB0F1ED94CDDC7438AA40A85C358531A89C4D55C</key>
+		<string>../../../../..</string>
+	</dict>
+	<key>IDESourceControlProjectURL</key>
+	<string>https://github.com/dalek7/Algorithms.git</string>
+	<key>IDESourceControlProjectVersion</key>
+	<integer>111</integer>
+	<key>IDESourceControlProjectWCCIdentifier</key>
+	<string>DB0F1ED94CDDC7438AA40A85C358531A89C4D55C</string>
+	<key>IDESourceControlProjectWCConfigurations</key>
+	<array>
+		<dict>
+			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
+			<string>public.vcs.git</string>
+			<key>IDESourceControlWCCIdentifierKey</key>
+			<string>DB0F1ED94CDDC7438AA40A85C358531A89C4D55C</string>
+			<key>IDESourceControlWCCName</key>
+			<string>Algorithms</string>
+		</dict>
+	</array>
+</dict>
+</plist>
