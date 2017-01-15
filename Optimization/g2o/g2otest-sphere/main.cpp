@@ -327,7 +327,7 @@ int main(int argc, char** argv)
     optimizer.initializeOptimization();
     optimizer.optimize(maxIterations);
 
-    
+    // Visulizing only points (w/o pose)
     fp = fopen("out_vertices_after.txt", "w");
     for(size_t i=0; i<vertices.size(); i++)
     //for(int i=0; i<2; i++)
