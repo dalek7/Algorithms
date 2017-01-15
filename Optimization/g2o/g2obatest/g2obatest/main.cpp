@@ -201,6 +201,10 @@ int main(int argc, const char * argv[]) {
     cv::waitKey(-1);
     
     std::cout << "Done !\n";
+    
+    // TODO
+    // : compute camera poses via epipolar geometry and triangulate the points.
+    // : compare the results.
     return 0;
 }
 
