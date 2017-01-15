@@ -1,0 +1,362 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		240F635E1E260EE1003CBE12 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 240F635D1E260EE1003CBE12 /* main.cpp */; };
+		240F63751E284285003CBE12 /* libopencv_calib3d.3.1.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 240F63701E284285003CBE12 /* libopencv_calib3d.3.1.0.dylib */; };
+		240F63761E284285003CBE12 /* libopencv_core.3.1.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 240F63711E284285003CBE12 /* libopencv_core.3.1.0.dylib */; };
+		240F63771E284285003CBE12 /* libopencv_features2d.3.1.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 240F63721E284285003CBE12 /* libopencv_features2d.3.1.0.dylib */; };
+		240F63781E284285003CBE12 /* libopencv_highgui.3.1.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 240F63731E284285003CBE12 /* libopencv_highgui.3.1.0.dylib */; };
+		240F63791E284285003CBE12 /* libopencv_imgproc.3.1.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 240F63741E284285003CBE12 /* libopencv_imgproc.3.1.0.dylib */; };
+		240F637B1E284469003CBE12 /* libopencv_imgcodecs.3.1.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 240F637A1E284469003CBE12 /* libopencv_imgcodecs.3.1.0.dylib */; };
+		2419222D1E284957000B526A /* libg2o_core.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2419222B1E284957000B526A /* libg2o_core.dylib */; };
+		2419222E1E284957000B526A /* libg2o_stuff.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2419222C1E284957000B526A /* libg2o_stuff.dylib */; };
+		241922301E284993000B526A /* libg2o_solver_cholmod.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2419222F1E284993000B526A /* libg2o_solver_cholmod.dylib */; };
+		241922321E2849D3000B526A /* libg2o_types_data.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 241922311E2849D3000B526A /* libg2o_types_data.dylib */; };
+		2419223D1E284A21000B526A /* libg2o_solver_csparse.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 241922341E284A21000B526A /* libg2o_solver_csparse.dylib */; };
+		2419223F1E284A21000B526A /* libg2o_solver_eigen.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 241922361E284A21000B526A /* libg2o_solver_eigen.dylib */; };
+		241922411E284A21000B526A /* libg2o_solver_slam2d_linear.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 241922381E284A21000B526A /* libg2o_solver_slam2d_linear.dylib */; };
+		241922441E284A21000B526A /* libg2o_types_sba.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2419223B1E284A21000B526A /* libg2o_types_sba.dylib */; };
+		241922531E284A3B000B526A /* libg2o_csparse_extension.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 241922451E284A3A000B526A /* libg2o_csparse_extension.dylib */; };
+		241922641E292FE1000B526A /* libcamd.2.4.6.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 241922631E292FE1000B526A /* libcamd.2.4.6.dylib */; };
+		2419226A1E293021000B526A /* libamd.2.4.6.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 241922661E293021000B526A /* libamd.2.4.6.dylib */; };
+		2419226B1E293021000B526A /* libccolamd.2.9.6.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 241922671E293021000B526A /* libccolamd.2.9.6.dylib */; };
+		2419226C1E293021000B526A /* libcholmod.3.0.11.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 241922681E293021000B526A /* libcholmod.3.0.11.dylib */; };
+		2419226D1E293021000B526A /* libcxsparse.3.1.9.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 241922691E293021000B526A /* libcxsparse.3.1.9.dylib */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		240F63581E260EE1003CBE12 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = /usr/share/man/man1/;
+			dstSubfolderSpec = 0;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 1;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		240F635A1E260EE1003CBE12 /* g2obatest */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = g2obatest; sourceTree = BUILT_PRODUCTS_DIR; };
+		240F635D1E260EE1003CBE12 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
+		240F63701E284285003CBE12 /* libopencv_calib3d.3.1.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libopencv_calib3d.3.1.0.dylib; path = /usr/local/Cellar/opencv3/3.1.0_4/lib/libopencv_calib3d.3.1.0.dylib; sourceTree = "<absolute>"; };
+		240F63711E284285003CBE12 /* libopencv_core.3.1.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libopencv_core.3.1.0.dylib; path = /usr/local/Cellar/opencv3/3.1.0_4/lib/libopencv_core.3.1.0.dylib; sourceTree = "<absolute>"; };
+		240F63721E284285003CBE12 /* libopencv_features2d.3.1.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libopencv_features2d.3.1.0.dylib; path = /usr/local/Cellar/opencv3/3.1.0_4/lib/libopencv_features2d.3.1.0.dylib; sourceTree = "<absolute>"; };
+		240F63731E284285003CBE12 /* libopencv_highgui.3.1.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libopencv_highgui.3.1.0.dylib; path = /usr/local/Cellar/opencv3/3.1.0_4/lib/libopencv_highgui.3.1.0.dylib; sourceTree = "<absolute>"; };
+		240F63741E284285003CBE12 /* libopencv_imgproc.3.1.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libopencv_imgproc.3.1.0.dylib; path = /usr/local/Cellar/opencv3/3.1.0_4/lib/libopencv_imgproc.3.1.0.dylib; sourceTree = "<absolute>"; };
+		240F637A1E284469003CBE12 /* libopencv_imgcodecs.3.1.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libopencv_imgcodecs.3.1.0.dylib; path = /usr/local/Cellar/opencv3/3.1.0_4/lib/libopencv_imgcodecs.3.1.0.dylib; sourceTree = "<absolute>"; };
+		2419222B1E284957000B526A /* libg2o_core.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libg2o_core.dylib; path = "/usr/local/Cellar/g2o/2016-04-24/lib/libg2o_core.dylib"; sourceTree = "<absolute>"; };
+		2419222C1E284957000B526A /* libg2o_stuff.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libg2o_stuff.dylib; path = "/usr/local/Cellar/g2o/2016-04-24/lib/libg2o_stuff.dylib"; sourceTree = "<absolute>"; };
+		2419222F1E284993000B526A /* libg2o_solver_cholmod.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libg2o_solver_cholmod.dylib; path = "/usr/local/Cellar/g2o/2016-04-24/lib/libg2o_solver_cholmod.dylib"; sourceTree = "<absolute>"; };
+		241922311E2849D3000B526A /* libg2o_types_data.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libg2o_types_data.dylib; path = "/usr/local/Cellar/g2o/2016-04-24/lib/libg2o_types_data.dylib"; sourceTree = "<absolute>"; };
+		241922341E284A21000B526A /* libg2o_solver_csparse.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libg2o_solver_csparse.dylib; path = "/usr/local/Cellar/g2o/2016-04-24/lib/libg2o_solver_csparse.dylib"; sourceTree = "<absolute>"; };
+		241922351E284A21000B526A /* libg2o_solver_dense.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libg2o_solver_dense.dylib; path = "/usr/local/Cellar/g2o/2016-04-24/lib/libg2o_solver_dense.dylib"; sourceTree = "<absolute>"; };
+		241922361E284A21000B526A /* libg2o_solver_eigen.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libg2o_solver_eigen.dylib; path = "/usr/local/Cellar/g2o/2016-04-24/lib/libg2o_solver_eigen.dylib"; sourceTree = "<absolute>"; };
+		241922381E284A21000B526A /* libg2o_solver_slam2d_linear.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libg2o_solver_slam2d_linear.dylib; path = "/usr/local/Cellar/g2o/2016-04-24/lib/libg2o_solver_slam2d_linear.dylib"; sourceTree = "<absolute>"; };
+		2419223B1E284A21000B526A /* libg2o_types_sba.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libg2o_types_sba.dylib; path = "/usr/local/Cellar/g2o/2016-04-24/lib/libg2o_types_sba.dylib"; sourceTree = "<absolute>"; };
+		241922451E284A3A000B526A /* libg2o_csparse_extension.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libg2o_csparse_extension.dylib; path = "/usr/local/Cellar/g2o/2016-04-24/lib/libg2o_csparse_extension.dylib"; sourceTree = "<absolute>"; };
+		2419224E1E284A3B000B526A /* libg2o_types_sim3.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libg2o_types_sim3.dylib; path = "/usr/local/Cellar/g2o/2016-04-24/lib/libg2o_types_sim3.dylib"; sourceTree = "<absolute>"; };
+		241922501E284A3B000B526A /* libg2o_types_slam2d.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libg2o_types_slam2d.dylib; path = "/usr/local/Cellar/g2o/2016-04-24/lib/libg2o_types_slam2d.dylib"; sourceTree = "<absolute>"; };
+		241922521E284A3B000B526A /* libg2o_types_slam3d.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libg2o_types_slam3d.dylib; path = "/usr/local/Cellar/g2o/2016-04-24/lib/libg2o_types_slam3d.dylib"; sourceTree = "<absolute>"; };
+		241922631E292FE1000B526A /* libcamd.2.4.6.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libcamd.2.4.6.dylib; path = "/usr/local/Cellar/suite-sparse/4.5.3/lib/libcamd.2.4.6.dylib"; sourceTree = "<absolute>"; };
+		241922661E293021000B526A /* libamd.2.4.6.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libamd.2.4.6.dylib; path = "/usr/local/Cellar/suite-sparse/4.5.3/lib/libamd.2.4.6.dylib"; sourceTree = "<absolute>"; };
+		241922671E293021000B526A /* libccolamd.2.9.6.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libccolamd.2.9.6.dylib; path = "/usr/local/Cellar/suite-sparse/4.5.3/lib/libccolamd.2.9.6.dylib"; sourceTree = "<absolute>"; };
+		241922681E293021000B526A /* libcholmod.3.0.11.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libcholmod.3.0.11.dylib; path = "/usr/local/Cellar/suite-sparse/4.5.3/lib/libcholmod.3.0.11.dylib"; sourceTree = "<absolute>"; };
+		241922691E293021000B526A /* libcxsparse.3.1.9.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libcxsparse.3.1.9.dylib; path = "/usr/local/Cellar/suite-sparse/4.5.3/lib/libcxsparse.3.1.9.dylib"; sourceTree = "<absolute>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		240F63571E260EE1003CBE12 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2419226A1E293021000B526A /* libamd.2.4.6.dylib in Frameworks */,
+				2419226B1E293021000B526A /* libccolamd.2.9.6.dylib in Frameworks */,
+				2419226C1E293021000B526A /* libcholmod.3.0.11.dylib in Frameworks */,
+				2419226D1E293021000B526A /* libcxsparse.3.1.9.dylib in Frameworks */,
+				241922641E292FE1000B526A /* libcamd.2.4.6.dylib in Frameworks */,
+				241922531E284A3B000B526A /* libg2o_csparse_extension.dylib in Frameworks */,
+				2419222D1E284957000B526A /* libg2o_core.dylib in Frameworks */,
+				241922301E284993000B526A /* libg2o_solver_cholmod.dylib in Frameworks */,
+				2419223D1E284A21000B526A /* libg2o_solver_csparse.dylib in Frameworks */,
+				2419223F1E284A21000B526A /* libg2o_solver_eigen.dylib in Frameworks */,
+				241922411E284A21000B526A /* libg2o_solver_slam2d_linear.dylib in Frameworks */,
+				2419222E1E284957000B526A /* libg2o_stuff.dylib in Frameworks */,
+				241922321E2849D3000B526A /* libg2o_types_data.dylib in Frameworks */,
+				241922441E284A21000B526A /* libg2o_types_sba.dylib in Frameworks */,
+				240F637B1E284469003CBE12 /* libopencv_imgcodecs.3.1.0.dylib in Frameworks */,
+				240F63751E284285003CBE12 /* libopencv_calib3d.3.1.0.dylib in Frameworks */,
+				240F63761E284285003CBE12 /* libopencv_core.3.1.0.dylib in Frameworks */,
+				240F63771E284285003CBE12 /* libopencv_features2d.3.1.0.dylib in Frameworks */,
+				240F63781E284285003CBE12 /* libopencv_highgui.3.1.0.dylib in Frameworks */,
+				240F63791E284285003CBE12 /* libopencv_imgproc.3.1.0.dylib in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		240F63511E260EE1003CBE12 = {
+			isa = PBXGroup;
+			children = (
+				2419226E1E2930C2000B526A /* lib */,
+				240F635C1E260EE1003CBE12 /* g2obatest */,
+				240F635B1E260EE1003CBE12 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		240F635B1E260EE1003CBE12 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				240F635A1E260EE1003CBE12 /* g2obatest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		240F635C1E260EE1003CBE12 /* g2obatest */ = {
+			isa = PBXGroup;
+			children = (
+				240F635D1E260EE1003CBE12 /* main.cpp */,
+			);
+			path = g2obatest;
+			sourceTree = "<group>";
+		};
+		2419226E1E2930C2000B526A /* lib */ = {
+			isa = PBXGroup;
+			children = (
+				241922661E293021000B526A /* libamd.2.4.6.dylib */,
+				241922671E293021000B526A /* libccolamd.2.9.6.dylib */,
+				241922681E293021000B526A /* libcholmod.3.0.11.dylib */,
+				241922691E293021000B526A /* libcxsparse.3.1.9.dylib */,
+				241922631E292FE1000B526A /* libcamd.2.4.6.dylib */,
+				241922451E284A3A000B526A /* libg2o_csparse_extension.dylib */,
+				2419224E1E284A3B000B526A /* libg2o_types_sim3.dylib */,
+				241922501E284A3B000B526A /* libg2o_types_slam2d.dylib */,
+				241922521E284A3B000B526A /* libg2o_types_slam3d.dylib */,
+				241922341E284A21000B526A /* libg2o_solver_csparse.dylib */,
+				241922351E284A21000B526A /* libg2o_solver_dense.dylib */,
+				241922361E284A21000B526A /* libg2o_solver_eigen.dylib */,
+				241922381E284A21000B526A /* libg2o_solver_slam2d_linear.dylib */,
+				2419223B1E284A21000B526A /* libg2o_types_sba.dylib */,
+				241922311E2849D3000B526A /* libg2o_types_data.dylib */,
+				2419222F1E284993000B526A /* libg2o_solver_cholmod.dylib */,
+				2419222B1E284957000B526A /* libg2o_core.dylib */,
+				2419222C1E284957000B526A /* libg2o_stuff.dylib */,
+				240F637A1E284469003CBE12 /* libopencv_imgcodecs.3.1.0.dylib */,
+				240F63701E284285003CBE12 /* libopencv_calib3d.3.1.0.dylib */,
+				240F63711E284285003CBE12 /* libopencv_core.3.1.0.dylib */,
+				240F63721E284285003CBE12 /* libopencv_features2d.3.1.0.dylib */,
+				240F63731E284285003CBE12 /* libopencv_highgui.3.1.0.dylib */,
+				240F63741E284285003CBE12 /* libopencv_imgproc.3.1.0.dylib */,
+			);
+			name = lib;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		240F63591E260EE1003CBE12 /* g2obatest */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 240F63611E260EE1003CBE12 /* Build configuration list for PBXNativeTarget "g2obatest" */;
+			buildPhases = (
+				240F63561E260EE1003CBE12 /* Sources */,
+				240F63571E260EE1003CBE12 /* Frameworks */,
+				240F63581E260EE1003CBE12 /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = g2obatest;
+			productName = g2obatest;
+			productReference = 240F635A1E260EE1003CBE12 /* g2obatest */;
+			productType = "com.apple.product-type.tool";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		240F63521E260EE1003CBE12 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0610;
+				ORGANIZATIONNAME = "Seung-Chan Kim";
+				TargetAttributes = {
+					240F63591E260EE1003CBE12 = {
+						CreatedOnToolsVersion = 6.1.1;
+					};
+				};
+			};
+			buildConfigurationList = 240F63551E260EE1003CBE12 /* Build configuration list for PBXProject "g2obatest" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = 240F63511E260EE1003CBE12;
+			productRefGroup = 240F635B1E260EE1003CBE12 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				240F63591E260EE1003CBE12 /* g2obatest */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		240F63561E260EE1003CBE12 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				240F635E1E260EE1003CBE12 /* main.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		240F635F1E260EE1003CBE12 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.9;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		240F63601E260EE1003CBE12 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.9;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		240F63621E260EE1003CBE12 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
+					Thirdparty,
+					/usr/local/opt/g2o/include,
+					/usr/local/include,
+				);
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					/usr/local/Cellar/opencv3/3.1.0_4/lib,
+					"/usr/local/Cellar/g2o/2016-04-24/lib",
+					"/usr/local/Cellar/suite-sparse/4.5.3/lib",
+				);
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		240F63631E260EE1003CBE12 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
+					Thirdparty,
+					/usr/local/opt/g2o/include,
+					/usr/local/include,
+				);
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					/usr/local/Cellar/opencv3/3.1.0_4/lib,
+					"/usr/local/Cellar/g2o/2016-04-24/lib",
+					"/usr/local/Cellar/suite-sparse/4.5.3/lib",
+				);
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		240F63551E260EE1003CBE12 /* Build configuration list for PBXProject "g2obatest" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				240F635F1E260EE1003CBE12 /* Debug */,
+				240F63601E260EE1003CBE12 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		240F63611E260EE1003CBE12 /* Build configuration list for PBXNativeTarget "g2obatest" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				240F63621E260EE1003CBE12 /* Debug */,
+				240F63631E260EE1003CBE12 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 240F63521E260EE1003CBE12 /* Project object */;
+}
