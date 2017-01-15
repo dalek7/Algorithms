@@ -3,9 +3,8 @@
 //  g2obatest
 //
 //  Created by Seung-Chan Kim on 1/11/17.
-//  Copyright (c) 2017 Seung-Chan Kim. All rights reserved.
 //  based on https://github.com/gaoxiang12/g2o_ba_example
-// http://nimbro.net/OP/Doc/html/Localization_8hpp_source.html
+//  http://nimbro.net/OP/Doc/html/Localization_8hpp_source.html
 
 #include <iostream>
 
@@ -64,7 +63,6 @@ int main(int argc, const char * argv[]) {
         return 0;
     }
     cout<<"# of matches = "<< pts1.size() << endl;
-    
     
     g2o::SparseOptimizer    optimizer;
     
@@ -179,7 +177,6 @@ int main(int argc, const char * argv[]) {
         Eigen::Vector3d pos = v->estimate();
         cout<<pos(0)<<","<<pos(1)<<","<<pos(2)<<endl;
     }
-
     
     int inliers = 0;
     for ( auto e:edges )
