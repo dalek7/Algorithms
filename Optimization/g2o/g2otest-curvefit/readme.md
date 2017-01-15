@@ -6,4 +6,4 @@
 
 - Plot : Matlab 2015b
 
-![Figure1](https://raw.githubusercontent.com/dalek7/Algorithms/master/Optimization/g2o/g2oTeStarbucks/g2oplot1_curve_fitting.png)
+![Figure1](https://raw.githubusercontent.com/dalek7/Algorithms/master/Optimization/g2o/g2otest-curvefit/g2oplot1_curve_fitting.png)
