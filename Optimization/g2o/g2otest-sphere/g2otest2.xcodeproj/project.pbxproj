@@ -7,32 +7,25 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		241922721E2AFF1B000B526A /* libcxsparse.3.1.9.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 241922711E2AFF1B000B526A /* libcxsparse.3.1.9.dylib */; };
 		24C235311E17DC890083E06C /* libg2o_cli.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 24C2351F1E17DC880083E06C /* libg2o_cli.dylib */; };
 		24C235321E17DC890083E06C /* libg2o_core.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 24C235201E17DC880083E06C /* libg2o_core.dylib */; };
 		24C235331E17DC890083E06C /* libg2o_csparse_extension.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 24C235211E17DC880083E06C /* libg2o_csparse_extension.dylib */; };
-		24C235341E17DC890083E06C /* libg2o_ext_freeglut_minimal.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 24C235221E17DC880083E06C /* libg2o_ext_freeglut_minimal.dylib */; };
-		24C235351E17DC890083E06C /* libg2o_incremental.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 24C235231E17DC880083E06C /* libg2o_incremental.dylib */; };
 		24C235361E17DC890083E06C /* libg2o_interactive.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 24C235241E17DC880083E06C /* libg2o_interactive.dylib */; };
-		24C235371E17DC890083E06C /* libg2o_interface.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 24C235251E17DC890083E06C /* libg2o_interface.dylib */; };
-		24C235381E17DC890083E06C /* libg2o_opengl_helper.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 24C235261E17DC890083E06C /* libg2o_opengl_helper.dylib */; };
 		24C235391E17DC890083E06C /* libg2o_parser.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 24C235271E17DC890083E06C /* libg2o_parser.dylib */; };
 		24C2353A1E17DC890083E06C /* libg2o_simulator.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 24C235281E17DC890083E06C /* libg2o_simulator.dylib */; };
 		24C2353B1E17DC890083E06C /* libg2o_solver_cholmod.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 24C235291E17DC890083E06C /* libg2o_solver_cholmod.dylib */; };
 		24C2353C1E17DC890083E06C /* libg2o_solver_csparse.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 24C2352A1E17DC890083E06C /* libg2o_solver_csparse.dylib */; };
 		24C2353D1E17DC890083E06C /* libg2o_solver_dense.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 24C2352B1E17DC890083E06C /* libg2o_solver_dense.dylib */; };
 		24C2353E1E17DC890083E06C /* libg2o_solver_eigen.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 24C2352C1E17DC890083E06C /* libg2o_solver_eigen.dylib */; };
-		24C2353F1E17DC890083E06C /* libg2o_solver_pcg.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 24C2352D1E17DC890083E06C /* libg2o_solver_pcg.dylib */; };
 		24C235401E17DC890083E06C /* libg2o_solver_slam2d_linear.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 24C2352E1E17DC890083E06C /* libg2o_solver_slam2d_linear.dylib */; };
-		24C235411E17DC890083E06C /* libg2o_solver_structure_only.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 24C2352F1E17DC890083E06C /* libg2o_solver_structure_only.dylib */; };
 		24C235421E17DC890083E06C /* libg2o_stuff.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 24C235301E17DC890083E06C /* libg2o_stuff.dylib */; };
 		24C2354C1E17DCA30083E06C /* libg2o_types_data.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 24C235431E17DCA30083E06C /* libg2o_types_data.dylib */; };
 		24C2354D1E17DCA30083E06C /* libg2o_types_icp.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 24C235441E17DCA30083E06C /* libg2o_types_icp.dylib */; };
 		24C2354E1E17DCA30083E06C /* libg2o_types_sba.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 24C235451E17DCA30083E06C /* libg2o_types_sba.dylib */; };
 		24C2354F1E17DCA30083E06C /* libg2o_types_sclam2d.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 24C235461E17DCA30083E06C /* libg2o_types_sclam2d.dylib */; };
 		24C235501E17DCA30083E06C /* libg2o_types_sim3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 24C235471E17DCA30083E06C /* libg2o_types_sim3.dylib */; };
-		24C235511E17DCA30083E06C /* libg2o_types_slam2d_addons.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 24C235481E17DCA30083E06C /* libg2o_types_slam2d_addons.dylib */; };
 		24C235521E17DCA30083E06C /* libg2o_types_slam2d.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 24C235491E17DCA30083E06C /* libg2o_types_slam2d.dylib */; };
-		24C235531E17DCA30083E06C /* libg2o_types_slam3d_addons.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 24C2354A1E17DCA30083E06C /* libg2o_types_slam3d_addons.dylib */; };
 		24C235541E17DCA30083E06C /* libg2o_types_slam3d.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 24C2354B1E17DCA30083E06C /* libg2o_types_slam3d.dylib */; };
 		24E595151E1481AC00D4517F /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 24E595141E1481AC00D4517F /* main.cpp */; };
 /* End PBXBuildFile section */
@@ -50,6 +43,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		2419226F1E2AFEEE000B526A /* libsuitesparseconfig.4.5.3.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libsuitesparseconfig.4.5.3.dylib; path = "/usr/local/Cellar/suite-sparse/4.5.3/lib/libsuitesparseconfig.4.5.3.dylib"; sourceTree = "<absolute>"; };
+		241922711E2AFF1B000B526A /* libcxsparse.3.1.9.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libcxsparse.3.1.9.dylib; path = "/usr/local/Cellar/suite-sparse/4.5.3/lib/libcxsparse.3.1.9.dylib"; sourceTree = "<absolute>"; };
 		24AAB4A21E14810400090835 /* g2otest2 */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = g2otest2; sourceTree = BUILT_PRODUCTS_DIR; };
 		24C2351F1E17DC880083E06C /* libg2o_cli.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libg2o_cli.dylib; path = "/usr/local/Cellar/g2o/2016-04-24/lib/libg2o_cli.dylib"; sourceTree = "<absolute>"; };
 		24C235201E17DC880083E06C /* libg2o_core.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libg2o_core.dylib; path = "/usr/local/Cellar/g2o/2016-04-24/lib/libg2o_core.dylib"; sourceTree = "<absolute>"; };
@@ -86,32 +81,25 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				241922721E2AFF1B000B526A /* libcxsparse.3.1.9.dylib in Frameworks */,
 				24C2354C1E17DCA30083E06C /* libg2o_types_data.dylib in Frameworks */,
 				24C2354D1E17DCA30083E06C /* libg2o_types_icp.dylib in Frameworks */,
 				24C2354E1E17DCA30083E06C /* libg2o_types_sba.dylib in Frameworks */,
 				24C2354F1E17DCA30083E06C /* libg2o_types_sclam2d.dylib in Frameworks */,
 				24C235501E17DCA30083E06C /* libg2o_types_sim3.dylib in Frameworks */,
-				24C235511E17DCA30083E06C /* libg2o_types_slam2d_addons.dylib in Frameworks */,
 				24C235521E17DCA30083E06C /* libg2o_types_slam2d.dylib in Frameworks */,
-				24C235531E17DCA30083E06C /* libg2o_types_slam3d_addons.dylib in Frameworks */,
 				24C235541E17DCA30083E06C /* libg2o_types_slam3d.dylib in Frameworks */,
 				24C235311E17DC890083E06C /* libg2o_cli.dylib in Frameworks */,
 				24C235321E17DC890083E06C /* libg2o_core.dylib in Frameworks */,
 				24C235331E17DC890083E06C /* libg2o_csparse_extension.dylib in Frameworks */,
-				24C235341E17DC890083E06C /* libg2o_ext_freeglut_minimal.dylib in Frameworks */,
-				24C235351E17DC890083E06C /* libg2o_incremental.dylib in Frameworks */,
 				24C235361E17DC890083E06C /* libg2o_interactive.dylib in Frameworks */,
-				24C235371E17DC890083E06C /* libg2o_interface.dylib in Frameworks */,
-				24C235381E17DC890083E06C /* libg2o_opengl_helper.dylib in Frameworks */,
 				24C235391E17DC890083E06C /* libg2o_parser.dylib in Frameworks */,
 				24C2353A1E17DC890083E06C /* libg2o_simulator.dylib in Frameworks */,
 				24C2353B1E17DC890083E06C /* libg2o_solver_cholmod.dylib in Frameworks */,
 				24C2353C1E17DC890083E06C /* libg2o_solver_csparse.dylib in Frameworks */,
 				24C2353D1E17DC890083E06C /* libg2o_solver_dense.dylib in Frameworks */,
 				24C2353E1E17DC890083E06C /* libg2o_solver_eigen.dylib in Frameworks */,
-				24C2353F1E17DC890083E06C /* libg2o_solver_pcg.dylib in Frameworks */,
 				24C235401E17DC890083E06C /* libg2o_solver_slam2d_linear.dylib in Frameworks */,
-				24C235411E17DC890083E06C /* libg2o_solver_structure_only.dylib in Frameworks */,
 				24C235421E17DC890083E06C /* libg2o_stuff.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -119,9 +107,17 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		241922731E2B0081000B526A /* Sphere */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Sphere;
+			sourceTree = "<group>";
+		};
 		24AAB4991E14810400090835 = {
 			isa = PBXGroup;
 			children = (
+				241922731E2B0081000B526A /* Sphere */,
 				24FF47411E18850E0088D529 /* lib */,
 				24AAB4A41E14810400090835 /* g2otest2 */,
 				24AAB4A31E14810400090835 /* Products */,
@@ -147,6 +143,8 @@
 		24FF47411E18850E0088D529 /* lib */ = {
 			isa = PBXGroup;
 			children = (
+				241922711E2AFF1B000B526A /* libcxsparse.3.1.9.dylib */,
+				2419226F1E2AFEEE000B526A /* libsuitesparseconfig.4.5.3.dylib */,
 				24C235431E17DCA30083E06C /* libg2o_types_data.dylib */,
 				24C235441E17DCA30083E06C /* libg2o_types_icp.dylib */,
 				24C235451E17DCA30083E06C /* libg2o_types_sba.dylib */,
@@ -323,10 +321,12 @@
 					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
 					Thirdparty/,
 					/usr/local/opt/g2o/include,
+					/usr/local/include,
 				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"/usr/local/Cellar/g2o/2016-04-24/lib",
+					"/usr/local/Cellar/suite-sparse/4.5.3/lib",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
@@ -340,10 +340,12 @@
 					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
 					Thirdparty/,
 					/usr/local/opt/g2o/include,
+					/usr/local/include,
 				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"/usr/local/Cellar/g2o/2016-04-24/lib",
+					"/usr/local/Cellar/suite-sparse/4.5.3/lib",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};

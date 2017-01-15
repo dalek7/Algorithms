@@ -14,7 +14,7 @@
 		<string>https://github.com/dalek7/Algorithms.git</string>
 	</dict>
 	<key>IDESourceControlProjectPath</key>
-	<string>Optimization/g2o/g2otest/g2otest2.xcodeproj</string>
+	<string>Optimization/g2o/g2otest-sphere/g2otest2.xcodeproj</string>
 	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
 	<dict>
 		<key>DB0F1ED94CDDC7438AA40A85C358531A89C4D55C</key>

@@ -19,11 +19,16 @@
 #include "g2o/stuff/command_args.h"
 #include "g2o/core/factory.h"
 
+
+#include "g2o/core/sparse_optimizer.h"
+#include "g2o/core/block_solver.h"
+#include "g2o/core/optimization_algorithm_gauss_newton.h"
+#include "g2o/core/optimization_algorithm_levenberg.h"
+#include "g2o/solvers/csparse/linear_solver_csparse.h"
+
+
 using namespace std;
 using namespace g2o;
-
-
-using namespace std;
 
 int main(int argc, char** argv)
 {
@@ -102,7 +107,10 @@ int main(int argc, char** argv)
     vector<VertexSE3*> vertices;
     vector<EdgeSE3*> odometryEdges;
     vector<EdgeSE3*> edges;
-
+    
+    // create the optimizer to load the data and carry out the optimization
+    SparseOptimizer optimizer;
+    
     int id = 0;
     FILE *fp = fopen("out_t.txt", "w+");
     for (int f = 0; f < numLaps; ++f)
@@ -111,6 +119,9 @@ int main(int argc, char** argv)
         {
             VertexSE3* v = new VertexSE3;
             v->setId(id++);
+            
+            if(id==1)
+            v->setFixed( true );
 
             Eigen::AngleAxisd rotz(-M_PI + 2*n*M_PI / nodesPerLevel, Eigen::Vector3d::UnitZ());
             Eigen::AngleAxisd roty(-0.5*M_PI + id*M_PI / (numLaps * nodesPerLevel), Eigen::Vector3d::UnitY());
@@ -123,6 +134,7 @@ int main(int argc, char** argv)
             v->setEstimate(t);
             vertices.push_back(v);
 
+            optimizer.addVertex(v);
             //row-wise
             fprintf(fp, "%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\n",
                         t(0,0), t(0,1),t(0,2), t(0,3),
@@ -145,6 +157,7 @@ int main(int argc, char** argv)
         e->setInformation(information);
         odometryEdges.push_back(e);
         edges.push_back(e);
+        optimizer.addEdge(e);
     }
 
     // generate loop closure edges
@@ -168,6 +181,8 @@ int main(int argc, char** argv)
                 e->setMeasurement(t);
                 e->setInformation(information);
                 edges.push_back(e);
+                optimizer.addEdge(e);
+                
                 Eigen::Isometry3d tt = to->estimate();
                 fprintf(fp, "%f\t%f\t%f\t%f\t\t",   tf(0,3),tf(1,3),tf(2,3),tf(3,3) );
                 fprintf(fp, "%f\t%f\t%f\t%f\n",     tt(0,3),tt(1,3),tt(2,3),tt(3,3) );
@@ -254,7 +269,9 @@ int main(int argc, char** argv)
 
     string vertexTag = Factory::instance()->tag(vertices[0]);
     string edgeTag = Factory::instance()->tag(edges[0]);
-
+    cout << "vertexTag = "<< vertexTag << endl;
+    cout << "edgeTag = "<< edgeTag << endl;
+    
     ostream& fout = outFilename != "-" ? fileOutputStream : cout;
     for (size_t i = 0; i < vertices.size(); ++i)
     {
@@ -275,6 +292,55 @@ int main(int argc, char** argv)
         fout << endl;
     }
 
+    // write output
+    fp = fopen("out_vertices_before.txt", "w");
+    for(int i=0; i<vertices.size(); i++)
+    {
+     
+        Eigen::Isometry3d t = vertices[i]->estimate();
+        //cout<<"vertex pose(before)="<<endl<<t.matrix()<<endl;
+        
+        fprintf(fp, "%f\t%f\t%f\t%f\n",   t(0,3),t(1,3),t(2,3),t(3,3) );
+        
+    }
+    fclose(fp);
+    
+    
+    // create the linear solver
+    BlockSolverX::LinearSolverType * linearSolver = new LinearSolverCSparse<BlockSolverX::PoseMatrixType>();
+    
+    // create the block solver on top of the linear solver
+    BlockSolverX* blockSolver = new BlockSolverX(linearSolver);
+
+    
+    // create the algorithm to carry out the optimization
+    //OptimizationAlgorithmGaussNewton* optimizationAlgorithm = new OptimizationAlgorithmGaussNewton(blockSolver);
+    OptimizationAlgorithmLevenberg* optimizationAlgorithm = new OptimizationAlgorithmLevenberg(blockSolver);
+
+    
+    optimizer.setVerbose(true);
+    optimizer.setAlgorithm(optimizationAlgorithm);
+    
+    int maxIterations = 10;
+    
+    
+    optimizer.initializeOptimization();
+    optimizer.optimize(maxIterations);
+
+    
+    fp = fopen("out_vertices_after.txt", "w");
+    for(size_t i=0; i<vertices.size(); i++)
+    //for(int i=0; i<2; i++)
+    {
+        g2o::VertexSE3* v = dynamic_cast<g2o::VertexSE3*>( optimizer.vertex(i) );
+        Eigen::Isometry3d t = v->estimate();
+        //cout<<"vertex pose(after)="<<endl<<t.matrix()<<endl;
+        
+        fprintf(fp, "%f\t%f\t%f\t%f\n",   t(0,3),t(1,3),t(2,3),t(3,3) );
+        
+    }
+    fclose(fp);
+    
     cout << "Done!!! " << endl;
     return 0;
 }
