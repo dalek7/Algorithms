@@ -3,7 +3,8 @@
 clc; clear; close all;
 A = load('../out_vertices_before.txt');
 %B = load('../out_vertices_after.txt');
-B = load('../out_vertices_after(fixed_id_0).txt');
+%B = load('../out_vertices_after(fixed_id_0).txt');
+B = load('../out_vertices_after_wo_lc.txt');
 
 
 figure;

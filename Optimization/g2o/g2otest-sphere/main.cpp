@@ -181,7 +181,7 @@ int main(int argc, char** argv)
                 e->setMeasurement(t);
                 e->setInformation(information);
                 edges.push_back(e);
-                optimizer.addEdge(e);
+                optimizer.addEdge(e); // what happens if commented out?
                 
                 Eigen::Isometry3d tt = to->estimate();
                 fprintf(fp, "%f\t%f\t%f\t%f\t\t",   tf(0,3),tf(1,3),tf(2,3),tf(3,3) );
