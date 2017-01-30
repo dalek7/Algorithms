@@ -63,7 +63,7 @@
 
 /* Begin PBXFileReference section */
 		242150E01E3F29950056A6A8 /* g2o_tutorial_slam2d */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = g2o_tutorial_slam2d; sourceTree = BUILT_PRODUCTS_DIR; };
-		242150E31E3F29950056A6A8 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
+		242150E31E3F29950056A6A8 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = main.cpp; path = g2o_tutorial_slam2d/main.cpp; sourceTree = "<group>"; };
 		242150EA1E3F29FE0056A6A8 /* edge_se2_pointxy.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = edge_se2_pointxy.cpp; sourceTree = "<group>"; };
 		242150EB1E3F29FE0056A6A8 /* edge_se2_pointxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = edge_se2_pointxy.h; sourceTree = "<group>"; };
 		242150EC1E3F29FE0056A6A8 /* edge_se2.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = edge_se2.cpp; sourceTree = "<group>"; };
@@ -161,6 +161,7 @@
 		242150D71E3F29950056A6A8 = {
 			isa = PBXGroup;
 			children = (
+				242151431E3F30480056A6A8 /* main */,
 				242151421E3F2C360056A6A8 /* Libraries */,
 				242150E21E3F29950056A6A8 /* g2o_tutorial_slam2d */,
 				242150E11E3F29950056A6A8 /* Products */,
@@ -195,7 +196,6 @@
 				242150F81E3F29FE0056A6A8 /* vertex_point_xy.h */,
 				242150F91E3F29FE0056A6A8 /* vertex_se2.cpp */,
 				242150FA1E3F29FE0056A6A8 /* vertex_se2.h */,
-				242150E31E3F29950056A6A8 /* main.cpp */,
 			);
 			path = g2o_tutorial_slam2d;
 			sourceTree = "<group>";
@@ -237,6 +237,14 @@
 				2421511B1E3F2B6B0056A6A8 /* libg2o_types_slam3d.dylib */,
 			);
 			name = Libraries;
+			sourceTree = "<group>";
+		};
+		242151431E3F30480056A6A8 /* main */ = {
+			isa = PBXGroup;
+			children = (
+				242150E31E3F29950056A6A8 /* main.cpp */,
+			);
+			name = main;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
