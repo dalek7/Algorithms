@@ -24,6 +24,9 @@
 // NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+// Edited by Seung-Chan Kim.
+// See also Matlab code, which visualizes the SLAM problem.
+
 #include "simulator.h"
 
 #include "rand.h"
@@ -31,6 +34,9 @@
 #include <map>
 #include <iostream>
 #include <cmath>
+
+#include <fstream>
+#define FIXED_LENGTH_OUTPUT 1
 using namespace std;
 
 namespace g2o {
@@ -59,230 +65,383 @@ namespace g2o {
 
     void Simulator::simulate(int numNodes, const SE2& sensorOffset)
     {
-      // simulate a robot observing landmarks while travelling on a grid
-      int steps = 5;
-      double stepLen = 1.0;
-      int boundArea = 50;
+        // simulate a robot observing landmarks while travelling on a grid
+        int steps = 5;
+        double stepLen = 1.0;
+        int boundArea = 50;
 
-      double maxSensorRangeLandmarks = 2.5 * stepLen;
+        double maxSensorRangeLandmarks = 2.5 * stepLen;
 
-      int landMarksPerSquareMeter = 1;
-      double observationProb = 0.8;
+        int landMarksPerSquareMeter = 1;
+        double observationProb = 0.8;
 
-      int landmarksRange=2;
+        int landmarksRange=2;
 
-      Vector2d transNoise(0.05, 0.01);
-      double rotNoise = DEG2RAD(2.);
-      Vector2d landmarkNoise(0.05, 0.05);
+        Vector2d transNoise(0.05, 0.01);
+        double rotNoise = DEG2RAD(2.);
+        Vector2d landmarkNoise(0.05, 0.05);
 
-      Vector2d bound(boundArea, boundArea);
+        Vector2d bound(boundArea, boundArea);
 
-      VectorXd probLimits;
-      probLimits.resize(MO_NUM_ELEMS);
-      for (int i = 0; i < probLimits.size(); ++i)
-        probLimits[i] = (i + 1) / (double) MO_NUM_ELEMS;
-
-      Matrix3d covariance;
-      covariance.fill(0.);
-      covariance(0, 0) = transNoise[0]*transNoise[0];
-      covariance(1, 1) = transNoise[1]*transNoise[1];
-      covariance(2, 2) = rotNoise*rotNoise;
-      Matrix3d information = covariance.inverse();
-
-      SE2 maxStepTransf(stepLen * steps, 0, 0);
-      Simulator::PosesVector& poses = _poses;
-      poses.clear();
-      LandmarkVector& landmarks = _landmarks;
-      landmarks.clear();
-      Simulator::GridPose firstPose;
-      firstPose.id = 0;
-      firstPose.truePose = SE2(0,0,0);
-      firstPose.simulatorPose = SE2(0,0,0);
-      poses.push_back(firstPose);
-      cerr << "Simulator: sampling nodes ...";
-      while ((int)poses.size() < numNodes) {
-        // add straight motions
-        for (int i = 1; i < steps && (int)poses.size() < numNodes; ++i) {
-          Simulator::GridPose nextGridPose = generateNewPose(poses.back(), SE2(stepLen,0,0), transNoise, rotNoise);
-          poses.push_back(nextGridPose);
-        }
-        if ((int)poses.size() == numNodes)
-          break;
-
-        // sample a new motion direction
-        double sampleMove = Rand::uniform_rand(0., 1.);
-        int motionDirection = 0;
-        while (probLimits[motionDirection] < sampleMove && motionDirection+1 < MO_NUM_ELEMS) {
-          motionDirection++;
+        VectorXd probLimits;
+        probLimits.resize(MO_NUM_ELEMS);
+        cout << "probLimits : size = " << probLimits.size() << "\n";
+        for (int i = 0; i < probLimits.size(); ++i)
+        {
+            probLimits[i] = (i + 1) / (double) MO_NUM_ELEMS;
+            cout << i << "\t" << probLimits[i] << endl;;
         }
 
-        SE2 nextMotionStep = getMotion(motionDirection, stepLen);
-        Simulator::GridPose nextGridPose = generateNewPose(poses.back(), nextMotionStep, transNoise, rotNoise);
+        Matrix3d covariance;
+        covariance.fill(0.);
+        covariance(0, 0) = transNoise[0]*transNoise[0];
+        covariance(1, 1) = transNoise[1]*transNoise[1];
+        covariance(2, 2) = rotNoise*rotNoise;
+        cout << "covariance=" << endl;
+        cout << covariance << endl;
+        
+        Matrix3d information = covariance.inverse();
+        cout << "information=" << endl;
+        cout << information << endl;
 
-        // check whether we will walk outside the boundaries in the next iteration
-        SE2 nextStepFinalPose = nextGridPose.truePose * maxStepTransf;
-        if (fabs(nextStepFinalPose.translation().x()) >= bound[0] || fabs(nextStepFinalPose.translation().y()) >= bound[1]) {
-          //cerr << "b";
-          // will be outside boundaries using this
-          for (int i = 0; i < MO_NUM_ELEMS; ++i) {
-            nextMotionStep = getMotion(i, stepLen);
-            nextGridPose = generateNewPose(poses.back(), nextMotionStep, transNoise, rotNoise);
-            nextStepFinalPose = nextGridPose.truePose * maxStepTransf;
-            if (fabs(nextStepFinalPose.translation().x()) < bound[0] && fabs(nextStepFinalPose.translation().y()) < bound[1])
-              break;
-          }
-        }
-
-        poses.push_back(nextGridPose);
-      }
-      cerr << "done." << endl;
-
-      // creating landmarks along the trajectory
-      cerr << "Simulator: Creating landmarks ... ";
-      LandmarkGrid grid;
-      for (PosesVector::const_iterator it = poses.begin(); it != poses.end(); ++it) {
-        int ccx = (int)round(it->truePose.translation().x());
-        int ccy = (int)round(it->truePose.translation().y());
-        for (int a=-landmarksRange; a<=landmarksRange; a++)
-          for (int b=-landmarksRange; b<=landmarksRange; b++){
-            int cx=ccx+a;
-            int cy=ccy+b;
-            LandmarkPtrVector& landmarksForCell = grid[cx][cy];
-            if (landmarksForCell.size() == 0) {
-              for (int i = 0; i < landMarksPerSquareMeter; ++i) {
-                Landmark* l = new Landmark();
-                double offx, offy;
-                do {
-                  offx = Rand::uniform_rand(-0.5*stepLen, 0.5*stepLen);
-                  offy = Rand::uniform_rand(-0.5*stepLen, 0.5*stepLen);
-                } while (hypot_sqr(offx, offy) < 0.25*0.25);
-                l->truePose[0] = cx + offx;
-                l->truePose[1] = cy + offy;
-                landmarksForCell.push_back(l);
-              }
+        SE2 maxStepTransf(stepLen * steps, 0, 0);
+        Simulator::PosesVector& poses = _poses;
+        poses.clear();
+        
+        LandmarkVector& landmarks = _landmarks;
+        landmarks.clear();
+        
+        Simulator::GridPose firstPose;
+        firstPose.id = 0;
+        firstPose.truePose = SE2(0,0,0);
+        firstPose.simulatorPose = SE2(0,0,0);
+        poses.push_back(firstPose);
+        
+        cerr << "Simulator: sampling nodes ...";
+        
+        while ((int)poses.size() < numNodes)
+        {
+            // add straight motions
+            // steps = 5
+            for (int i = 1; i < steps && (int)poses.size() < numNodes; ++i)
+            {
+                SE2 trueMotion = SE2(stepLen,0,0);
+                Simulator::GridPose nextGridPose = generateNewPose(poses.back(),trueMotion, transNoise, rotNoise);
+                poses.push_back(nextGridPose);
             }
-          }
-      }
-      cerr << "done." << endl;
+            if ((int)poses.size() == numNodes)
+            break;
 
-      cerr << "Simulator: Simulating landmark observations for the poses ... ";
-      double maxSensorSqr = maxSensorRangeLandmarks * maxSensorRangeLandmarks;
-      int globalId = 0;
-      for (PosesVector::iterator it = poses.begin(); it != poses.end(); ++it) {
-        Simulator::GridPose& pv = *it;
-        int cx = (int)round(it->truePose.translation().x());
-        int cy = (int)round(it->truePose.translation().y());
-        int numGridCells = (int)(maxSensorRangeLandmarks) + 1;
-
-        pv.id = globalId++;
-        SE2 trueInv = pv.truePose.inverse();
-
-        for (int xx = cx - numGridCells; xx <= cx + numGridCells; ++xx)
-          for (int yy = cy - numGridCells; yy <= cy + numGridCells; ++yy) {
-            LandmarkPtrVector& landmarksForCell = grid[xx][yy];
-            if (landmarksForCell.size() == 0)
-              continue;
-            for (size_t i = 0; i < landmarksForCell.size(); ++i) {
-              Landmark* l = landmarksForCell[i];
-              double dSqr = hypot_sqr(pv.truePose.translation().x() - l->truePose.x(), pv.truePose.translation().y() - l->truePose.y());
-              if (dSqr > maxSensorSqr)
-                continue;
-              double obs = Rand::uniform_rand(0.0, 1.0);
-              if (obs > observationProb) // we do not see this one...
-                continue;
-              if (l->id < 0)
-                l->id = globalId++;
-              if (l->seenBy.size() == 0) {
-                Vector2d trueObservation = trueInv * l->truePose;
-                Vector2d observation = trueObservation;
-                observation[0] += Rand::gauss_rand(0., landmarkNoise[0]);
-                observation[1] += Rand::gauss_rand(0., landmarkNoise[1]);
-                l->simulatedPose = pv.simulatorPose * observation;
-              }
-              l->seenBy.push_back(pv.id);
-              pv.landmarks.push_back(l);
+            // sample a new motion direction
+            double sampleMove = Rand::uniform_rand(0., 1.);
+            int motionDirection = 0;
+            /*
+             probLimits : size = 2
+             0	0.5
+             1	1
+             */
+            while (probLimits[motionDirection] < sampleMove && motionDirection+1 < MO_NUM_ELEMS)
+            {
+                motionDirection++;
             }
-          }
+            
+            cout << "motionDirection = " << motionDirection << endl;    // 0 or 1
+                                                                        // MO_LEFT or MO_RIGHT
 
-      }
-      cerr << "done." << endl;
+            SE2 nextMotionStep = getMotion(motionDirection, stepLen);
+            
+            Simulator::GridPose nextGridPose = generateNewPose(poses.back(), nextMotionStep, transNoise, rotNoise);
 
-      // add the odometry measurements
-      _odometry.clear();
-      cerr << "Simulator: Adding odometry measurements ... ";
-      for (size_t i = 1; i < poses.size(); ++i) {
-        const GridPose& prev = poses[i-1];
-        const GridPose& p = poses[i];
-
-        _odometry.push_back(GridEdge());
-        GridEdge& edge = _odometry.back();
-
-        edge.from = prev.id;
-        edge.to = p.id;
-        edge.trueTransf = prev.truePose.inverse() * p.truePose;
-        edge.simulatorTransf = prev.simulatorPose.inverse() * p.simulatorPose;
-        edge.information = information;
-      }
-      cerr << "done." << endl;
-
-      _landmarks.clear();
-      _landmarkObservations.clear();
-      // add the landmark observations
-      {
-        cerr << "Simulator: add landmark observations ... ";
-        Matrix2d covariance; covariance.fill(0.);
-        covariance(0, 0) = landmarkNoise[0]*landmarkNoise[0];
-        covariance(1, 1) = landmarkNoise[1]*landmarkNoise[1];
-        Matrix2d information = covariance.inverse();
-
-        for (size_t i = 0; i < poses.size(); ++i) {
-          const GridPose& p = poses[i];
-          for (size_t j = 0; j < p.landmarks.size(); ++j) {
-            Landmark* l = p.landmarks[j];
-            if (l->seenBy.size() > 0 && l->seenBy[0] == p.id) {
-              landmarks.push_back(*l);
-            }
-          }
-        }
-
-        for (size_t i = 0; i < poses.size(); ++i) {
-          const GridPose& p = poses[i];
-          SE2 trueInv = (p.truePose * sensorOffset).inverse();
-          for (size_t j = 0; j < p.landmarks.size(); ++j) {
-            Landmark* l = p.landmarks[j];
-            Vector2d observation;
-            Vector2d trueObservation = trueInv * l->truePose;
-            observation = trueObservation;
-            if (l->seenBy.size() > 0 && l->seenBy[0] == p.id) { // write the initial position of the landmark
-              observation = (p.simulatorPose * sensorOffset).inverse() * l->simulatedPose;
-            } else {
-              // create observation for the LANDMARK using the true positions
-              observation[0] += Rand::gauss_rand(0., landmarkNoise[0]);
-              observation[1] += Rand::gauss_rand(0., landmarkNoise[1]);
+            // check whether we will walk outside the boundaries in the next iteration
+            SE2 nextStepFinalPose = nextGridPose.truePose * maxStepTransf;
+            if (fabs(nextStepFinalPose.translation().x()) >= bound[0] ||
+                fabs(nextStepFinalPose.translation().y()) >= bound[1])
+            {
+                //cerr << "b";
+                // will be outside boundaries using this
+                for (int i = 0; i < MO_NUM_ELEMS; ++i)
+                {
+                    nextMotionStep = getMotion(i, stepLen);
+                    nextGridPose = generateNewPose(poses.back(), nextMotionStep, transNoise, rotNoise);
+                    nextStepFinalPose = nextGridPose.truePose * maxStepTransf;
+                    if (fabs(nextStepFinalPose.translation().x()) < bound[0] && fabs(nextStepFinalPose.translation().y()) < bound[1])
+                    break;
+                }
             }
 
-            _landmarkObservations.push_back(LandmarkEdge());
-            LandmarkEdge& le = _landmarkObservations.back();
-
-            le.from = p.id;
-            le.to = l->id;
-            le.trueMeas = trueObservation;
-            le.simulatorMeas = observation;
-            le.information = information;
-          }
+            poses.push_back(nextGridPose);
         }
         cerr << "done." << endl;
-      }
-
-
-      // cleaning up
-      for (LandmarkGrid::iterator it = grid.begin(); it != grid.end(); ++it) {
-        for (std::map<int, Simulator::LandmarkPtrVector>::iterator itt = it->second.begin(); itt != it->second.end(); ++itt) {
-          Simulator::LandmarkPtrVector& landmarks = itt->second;
-          for (size_t i = 0; i < landmarks.size(); ++i)
-            delete landmarks[i];
+        //FILE *fp = fopen("out/poses.txt", "w");
+        ofstream fs;
+        
+        
+        // creating landmarks along the trajectory
+        cerr << "Simulator: Creating landmarks ... \n";
+        fs.open("../../../out/landmarks.txt");
+        // typedef std::map<int, std::map<int, Simulator::LandmarkPtrVector> > LandmarkGrid;
+        LandmarkGrid grid;
+        int idx=0;
+        for (PosesVector::const_iterator it = poses.begin(); it != poses.end(); ++it, ++idx)
+        {
+            int ccx = (int)round(it->truePose.translation().x());
+            int ccy = (int)round(it->truePose.translation().y());
+            
+            cout << "ccx = " << ccx << " ccy = " << ccy << endl;
+            
+            // landmarksRange=2;
+            for (int a=-landmarksRange; a<=landmarksRange; a++)
+            for (int b=-landmarksRange; b<=landmarksRange; b++)
+            {
+                int cx=ccx+a;
+                int cy=ccy+b;
+                LandmarkPtrVector& landmarksForCell = grid[cx][cy];
+                if (landmarksForCell.size() == 0)
+                {
+                    for (int i = 0; i < landMarksPerSquareMeter; ++i)   // landMarksPerSquareMeter = 1;
+                    {
+                        Landmark* l = new Landmark();
+                        double offx, offy;
+                        
+                        do {
+                            offx = Rand::uniform_rand(-0.5*stepLen, 0.5*stepLen); //stepLen = 1.0;
+                            offy = Rand::uniform_rand(-0.5*stepLen, 0.5*stepLen);
+                        }
+                        while (hypot_sqr(offx, offy) < 0.25*0.25);
+                            
+                        l->truePose[0] = cx + offx;
+                        l->truePose[1] = cy + offy;
+                        landmarksForCell.push_back(l);
+                        
+                        //cout << idx << "\t" << cx << "\t" << cy << "\t" << l->truePose[0] << "\t" << l->truePose[1] <<   endl;
+                        fs << idx << "\t" << cx << "\t" << cy << "\t" << l->truePose[0] << "\t" << l->truePose[1] <<   endl;
+                    }
+                }
+            }
         }
-      }
+        fs.close();
+        cerr << "done." << endl;
+
+        cerr << "Simulator: Simulating landmark observations for the poses ... ";
+        double maxSensorSqr = maxSensorRangeLandmarks * maxSensorRangeLandmarks;
+        int globalId = 0;
+        
+        
+        for (PosesVector::iterator it = poses.begin(); it != poses.end(); ++it)
+        {
+            Simulator::GridPose& pv = *it;
+            int cx = (int)round(it->truePose.translation().x());
+            int cy = (int)round(it->truePose.translation().y());
+            int numGridCells = (int)(maxSensorRangeLandmarks) + 1;  // maxSensorRangeLandmarks = 2.5 * stepLen;
+
+            pv.id = globalId++;
+            SE2 trueInv = pv.truePose.inverse();
+
+            for (int xx = cx - numGridCells; xx <= cx + numGridCells; ++xx)
+            for (int yy = cy - numGridCells; yy <= cy + numGridCells; ++yy)
+            {
+                LandmarkPtrVector& landmarksForCell = grid[xx][yy]; // notice that landMarksPerSquareMeter = 1;
+                if (landmarksForCell.size() == 0)
+                continue;
+            
+                
+                for (size_t i = 0; i < landmarksForCell.size(); ++i)
+                {
+                    Landmark* l = landmarksForCell[i];
+                    double dSqr = hypot_sqr(pv.truePose.translation().x() - l->truePose.x(), pv.truePose.translation().y() - l->truePose.y());
+                    
+                    if (dSqr > maxSensorSqr)
+                    continue;
+                    
+                    double obs = Rand::uniform_rand(0.0, 1.0);
+                    if (obs > observationProb) // we do not see this one...
+                    continue;
+                    
+                    if (l->id < 0)
+                    l->id = globalId++;
+                    
+                    if (l->seenBy.size() == 0)
+                    {
+                        Vector2d trueObservation = trueInv * l->truePose;
+                        Vector2d observation = trueObservation;
+                        observation[0] += Rand::gauss_rand(0., landmarkNoise[0]);
+                        observation[1] += Rand::gauss_rand(0., landmarkNoise[1]);
+                        l->simulatedPose = pv.simulatorPose * observation;
+                        
+                        //fs << l->simulatedPose[0] << " "  << l->simulatedPose[1] << endl;
+                        
+                    }
+                    l->seenBy.push_back(pv.id);
+                    pv.landmarks.push_back(l);
+                }
+            }
+
+        }
+        
+        fs.open("../../../out/poses.txt");
+        for (PosesVector::const_iterator it = poses.begin(); it != poses.end(); ++it)
+        {
+            fs << it->truePose.translation().transpose() << "\t" << it->simulatorPose.translation().transpose()  << "\t" << it->id << endl;
+            
+            
+        }
+        fs.close();
+
+        
+        
+        int maxConnection = 30; // random big number
+                                // for making Matlab to load the file
+        fs.open("../../../out/landmarks_obs.txt");
+        // typedef std::map<int, std::map<int, Simulator::LandmarkPtrVector> > LandmarkGrid;
+        for(auto const& ent1 : grid)
+        {
+            for(auto const& ent2 : ent1.second)
+            {
+                if(ent2.second.size()<1) continue;
+                
+                std::vector<Landmark*>::const_iterator it = ent2.second.begin();
+                
+                for(; it!= ent2.second.end(); ++it)
+                {
+                    Landmark* l = *it;
+                    if(l->id<0) continue;
+                    
+                    cout << l->id << " " << l->simulatedPose[0] << " " << l->simulatedPose[1];//<< endl;;
+                    fs << l->id << " " << l->simulatedPose[0] << " " << l->simulatedPose[1];// << endl;;
+                    
+                    int sz_actual = l->seenBy.size();
+                    assert(sz_actual<maxConnection);
+
+#if FIXED_LENGTH_OUTPUT
+                    for(int i=0; i< maxConnection; i++)
+                    {
+                        
+                        if(i<sz_actual)
+                        {
+                            //cout << " " << l->seenBy[i];
+                            fs << " " << l->seenBy[i];
+                            
+                        }
+                        else
+                        {
+                            //cout<< " " << -1 ;
+                            fs<< " " << -1;
+                            
+                        }
+                        
+                    }
+#else
+                   
+                    for(std::vector<int>::const_iterator itseenby= l->seenBy.begin(); itseenby!= l->seenBy.end(); ++itseenby)
+                    {
+                        cout << " " << *itseenby;
+                        fs << " " << *itseenby;
+                    }
+#endif
+                    cout << endl;
+                    fs<<endl;
+
+                }
+                
+            }
+        }
+        fs.close();
+        
+        
+        cerr << "done." << endl;
+
+        // add the odometry measurements
+        _odometry.clear();
+        cerr << "Simulator: Adding odometry measurements ... ";
+        for (size_t i = 1; i < poses.size(); ++i)
+        {
+            const GridPose& prev = poses[i-1];
+            const GridPose& p = poses[i];
+
+            _odometry.push_back(GridEdge());
+            GridEdge& edge = _odometry.back();
+
+            edge.from = prev.id;
+            edge.to = p.id;
+            edge.trueTransf = prev.truePose.inverse() * p.truePose;
+            edge.simulatorTransf = prev.simulatorPose.inverse() * p.simulatorPose;
+            edge.information = information;
+        }
+        cerr << "done." << endl;
+
+        _landmarks.clear();
+        _landmarkObservations.clear();
+        
+        // add the landmark observations
+        {
+            cerr << "Simulator: add landmark observations ... ";
+            Matrix2d covariance; covariance.fill(0.);
+            
+            covariance(0, 0) = landmarkNoise[0]*landmarkNoise[0];
+            covariance(1, 1) = landmarkNoise[1]*landmarkNoise[1];
+            Matrix2d information = covariance.inverse();
+
+            for (size_t i = 0; i < poses.size(); ++i)
+            {
+                const GridPose& p = poses[i];
+                for (size_t j = 0; j < p.landmarks.size(); ++j)
+                {
+                    Landmark* l = p.landmarks[j];
+                    if (l->seenBy.size() > 0 && l->seenBy[0] == p.id)
+                        // why l->seenBy[0] == p.id ??
+
+                    {
+                        landmarks.push_back(*l);
+                    }
+                }
+            }
+
+            for (size_t i = 0; i < poses.size(); ++i)
+            {
+                const GridPose& p = poses[i];
+                SE2 trueInv = (p.truePose * sensorOffset).inverse();
+                for (size_t j = 0; j < p.landmarks.size(); ++j)
+                {
+                    Landmark* l = p.landmarks[j];
+                    Vector2d observation;
+                    Vector2d trueObservation = trueInv * l->truePose;
+                    observation = trueObservation;
+                    
+                    if (l->seenBy.size() > 0 && l->seenBy[0] == p.id)
+                    {
+                        // write the initial position of the landmark
+                        observation = (p.simulatorPose * sensorOffset).inverse() * l->simulatedPose;
+                    }
+                    else
+                    {
+                        // create observation for the LANDMARK using the true positions
+                        observation[0] += Rand::gauss_rand(0., landmarkNoise[0]);
+                        observation[1] += Rand::gauss_rand(0., landmarkNoise[1]);
+                    }
+
+                    _landmarkObservations.push_back(LandmarkEdge());
+                    LandmarkEdge& le = _landmarkObservations.back();
+
+                    le.from = p.id;
+                    le.to = l->id;
+                    le.trueMeas = trueObservation;
+                    le.simulatorMeas = observation;
+                    le.information = information;
+                }
+            }
+            cerr << "done." << endl;
+        }
+
+        // cleaning up
+        for (LandmarkGrid::iterator it = grid.begin(); it != grid.end(); ++it)
+        {
+            for (std::map<int, Simulator::LandmarkPtrVector>::iterator itt = it->second.begin(); itt != it->second.end(); ++itt)
+            {
+                Simulator::LandmarkPtrVector& landmarks = itt->second;
+                for (size_t i = 0; i < landmarks.size(); ++i)
+                delete landmarks[i];
+            }
+        }
 
     }
 

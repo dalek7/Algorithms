@@ -35,6 +35,10 @@ int main()
     SE2 sensorOffsetTransf(0.2, 0.1, -0.1); // SE2(double x, double y, double theta):_R(theta),_t(x,y){}
     // p.truePose * sensorOffset
     
+    cout << "SensorOffset : " << endl;
+    cout << " translation : \n" << sensorOffsetTransf.translation().transpose() << endl;
+    cout << " rotation : \n" << sensorOffsetTransf.rotation().toRotationMatrix() << endl;
+    
     int numNodes = 300;
     
     //
@@ -50,6 +54,7 @@ int main()
     
     // allocating the optimizer
     SparseOptimizer optimizer;
+    
     SlamLinearSolver* linearSolver = new SlamLinearSolver();
     linearSolver->setBlockOrdering(false);
     SlamBlockSolver* blockSolver = new SlamBlockSolver(linearSolver);
@@ -66,7 +71,8 @@ int main()
     // adding the odometry to the optimizer
     // first adding all the vertices
     cerr << "Optimization: Adding robot poses ... ";
-    for (size_t i = 0; i < simulator.poses().size(); ++i) {
+    for (size_t i = 0; i < simulator.poses().size(); ++i)
+    {
         const Simulator::GridPose& p = simulator.poses()[i];
         const SE2& t = p.simulatorPose;
         VertexSE2* robot =  new VertexSE2;
@@ -78,7 +84,8 @@ int main()
     
     // second add the odometry constraints
     cerr << "Optimization: Adding odometry measurements ... ";
-    for (size_t i = 0; i < simulator.odometry().size(); ++i) {
+    for (size_t i = 0; i < simulator.odometry().size(); ++i)
+    {
         const Simulator::GridEdge& simEdge = simulator.odometry()[i];
         
         EdgeSE2* odometry = new EdgeSE2;
@@ -92,7 +99,8 @@ int main()
     
     // add the landmark observations
     cerr << "Optimization: add landmark vertices ... ";
-    for (size_t i = 0; i < simulator.landmarks().size(); ++i) {
+    for (size_t i = 0; i < simulator.landmarks().size(); ++i)
+    {
         const Simulator::Landmark& l = simulator.landmarks()[i];
         VertexPointXY* landmark = new VertexPointXY;
         landmark->setId(l.id);
@@ -102,12 +110,13 @@ int main()
     cerr << "done." << endl;
     
     cerr << "Optimization: add landmark observations ... ";
-    for (size_t i = 0; i < simulator.landmarkObservations().size(); ++i) {
+    for (size_t i = 0; i < simulator.landmarkObservations().size(); ++i)
+    {
         const Simulator::LandmarkEdge& simEdge = simulator.landmarkObservations()[i];
         EdgeSE2PointXY* landmarkObservation =  new EdgeSE2PointXY;
-        landmarkObservation->vertices()[0] = optimizer.vertex(simEdge.from);
-        landmarkObservation->vertices()[1] = optimizer.vertex(simEdge.to);
-        landmarkObservation->setMeasurement(simEdge.simulatorMeas);
+        landmarkObservation->vertices()[0] = optimizer.vertex(simEdge.from);    //p.id;
+        landmarkObservation->vertices()[1] = optimizer.vertex(simEdge.to);      //l->id;
+        landmarkObservation->setMeasurement(simEdge.simulatorMeas);             //observation : (p.simulatorPose * sensorOffset).inverse() * l->simulatedPose;
         landmarkObservation->setInformation(simEdge.information);
         landmarkObservation->setParameterId(0, sensorOffset->id());
         optimizer.addEdge(landmarkObservation);
