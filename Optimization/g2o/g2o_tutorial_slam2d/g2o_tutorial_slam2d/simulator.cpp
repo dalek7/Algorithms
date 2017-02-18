@@ -374,7 +374,7 @@ namespace g2o {
         
         // add the landmark observations
         {
-            cerr << "Simulator: add landmark observations ... ";
+            cerr << "Simulator: add landmark observations ... \n";
             Matrix2d covariance; covariance.fill(0.);
             
             covariance(0, 0) = landmarkNoise[0]*landmarkNoise[0];
@@ -386,6 +386,42 @@ namespace g2o {
                 const GridPose& p = poses[i];
                 for (size_t j = 0; j < p.landmarks.size(); ++j)
                 {
+#if 0
+                    cout << "pose["<<i<<"].landmarks["<<j<<"] #"  << " (/" << p.landmarks.size() <<") -> seen by " << p.landmarks[j]->seenBy.size()<< endl;
+                    for(size_t k=0; k<p.landmarks[j]->seenBy.size(); k++)
+                    {
+                        cout << " " <<p.landmarks[j]->seenBy[k];
+                        
+                    }
+                    cout << "\n";
+#endif
+                    /* example :
+                     pose[0].landmarks[0] # (/12) -> seen by 1
+                     0
+                     pose[0].landmarks[1] # (/12) -> seen by 2
+                     0 13
+                     pose[0].landmarks[2] # (/12) -> seen by 2
+                     0 13
+                     pose[0].landmarks[3] # (/12) -> seen by 2
+                     0 13
+                     pose[0].landmarks[4] # (/12) -> seen by 2
+                     0 20
+                     pose[0].landmarks[5] # (/12) -> seen by 2
+                     0 13
+                     pose[0].landmarks[6] # (/12) -> seen by 2
+                     0 13
+                     pose[0].landmarks[7] # (/12) -> seen by 4
+                     0 13 20 27
+                     pose[0].landmarks[8] # (/12) -> seen by 3
+                     0 13 27
+                     pose[0].landmarks[9] # (/12) -> seen by 3
+                     0 13 20
+                     pose[0].landmarks[10] # (/12) -> seen by 4
+                     0 13 20 32
+                     pose[0].landmarks[11] # (/12) -> seen by 4
+                     0 13 20 27
+                     */
+                    
                     Landmark* l = p.landmarks[j];
                     if (l->seenBy.size() > 0 && l->seenBy[0] == p.id)
                         // why l->seenBy[0] == p.id ??
