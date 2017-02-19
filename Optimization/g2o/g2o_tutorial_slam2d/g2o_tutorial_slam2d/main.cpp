@@ -63,6 +63,8 @@ int main()
     optimizer.setAlgorithm(solver);
     
     // add the parameter representing the sensor offset
+    // note that class ParameterSE2Offset is inhereted from Parameter class
+    
     ParameterSE2Offset* sensorOffset = new ParameterSE2Offset;
     sensorOffset->setOffset(sensorOffsetTransf);
     sensorOffset->setId(0);
@@ -104,7 +106,7 @@ int main()
         const Simulator::Landmark& l = simulator.landmarks()[i];
         VertexPointXY* landmark = new VertexPointXY;
         landmark->setId(l.id);
-        landmark->setEstimate(l.simulatedPose);
+        landmark->setEstimate(l.simulatedPose); // simulatedPose <-- Eigen::Vector2d;
         optimizer.addVertex(landmark);
     }
     cerr << "done." << endl;
