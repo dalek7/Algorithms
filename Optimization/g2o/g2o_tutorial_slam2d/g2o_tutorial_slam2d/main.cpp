@@ -73,6 +73,8 @@ int main()
     // adding the odometry to the optimizer
     // first adding all the vertices
     cerr << "Optimization: Adding robot poses ... ";
+    //ofstream fs;
+    //fs.open("../../../out/out_poses_before.txt");
     for (size_t i = 0; i < simulator.poses().size(); ++i)
     {
         const Simulator::GridPose& p = simulator.poses()[i];
@@ -80,8 +82,19 @@ int main()
         VertexSE2* robot =  new VertexSE2;
         robot->setId(p.id);
         robot->setEstimate(t);
+        //cout << p.id << " " << t.translation().x() << " " << t.translation().y() << endl;
+        //fs << p.id << " " << t.translation().x() << " " << t.translation().y() << endl;
+        
         optimizer.addVertex(robot);
+        
     }
+    //fs.close();
+    
+    
+    
+    
+    
+        
     cerr << "done." << endl;
     
     // second add the odometry constraints
@@ -125,6 +138,43 @@ int main()
     }
     cerr << "done." << endl;
     
+    //
+    ofstream fs;
+    fs.open("../../../out/out_measurements.txt");
+
+    for (size_t i = 0; i < simulator.landmarkObservations().size(); ++i)
+    {
+        const Simulator::LandmarkEdge& simEdge = simulator.landmarkObservations()[i];
+        EdgeSE2PointXY* landmarkObservation =  new EdgeSE2PointXY;
+        EdgeSE2PointXY v1;
+        //v1.vertices()[0]=optimizer.vertex(simEdge.from);
+        Eigen::Vector2d simulatorMeas = simEdge.simulatorMeas;
+        
+        fs << i << "\t" << simulatorMeas.x() << "\t" << simulatorMeas.y() << "\t" <<endl;
+        
+        //landmarkObservation->vertices()[1] = optimizer.vertex(simEdge.to);      //l->id;
+    }
+    fs.close();
+    
+    //optimizer.vertices();
+    
+    fs.open("../../../out/out_simEdge_from_before.txt");
+    for (size_t i = 0; i < simulator.landmarkObservations().size(); ++i)
+    {
+     
+        const Simulator::LandmarkEdge& simEdge = simulator.landmarkObservations()[i];
+        
+        optimizer.vertex(simEdge.from);
+        
+        VertexSE2* v = dynamic_cast<VertexSE2*> (optimizer.vertex(simEdge.from));
+        //cout << i << "\t" << v->estimate().translation().transpose() << endl;;
+        fs << i << "\t" << v->estimate().translation().transpose() << endl;;
+        //Eigen::Isometry2d t = v->estimate();
+        
+    }
+    fs.close();
+    
+    
     
     /*********************************************************************************
      * optimization
@@ -144,8 +194,23 @@ int main()
     optimizer.optimize(10);
     cerr << "done." << endl;
     
-    optimizer.save("tutorial_after.g2o");
+    fs.open("../../../out/out_simEdge_from_after.txt");
+    for (size_t i = 0; i < simulator.landmarkObservations().size(); ++i)
+    {
+        
+        const Simulator::LandmarkEdge& simEdge = simulator.landmarkObservations()[i];
+        
+        optimizer.vertex(simEdge.from);
+        
+        VertexSE2* v = dynamic_cast<VertexSE2*> (optimizer.vertex(simEdge.from));
+        //cout << i << "\t" << v->estimate().translation().transpose() << endl;;
+        fs << i << "\t" << v->estimate().translation().transpose() << endl;;
+        //Eigen::Isometry2d t = v->estimate();
+        
+    }
+    fs.close();
     
+    optimizer.save("tutorial_after.g2o");
     
     
     // freeing the graph memory

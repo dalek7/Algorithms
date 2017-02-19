@@ -310,7 +310,7 @@ namespace g2o {
                     fs << l->id << " " << l->simulatedPose[0] << " " << l->simulatedPose[1];// << endl;;
                     
                     int sz_actual = l->seenBy.size();
-                    assert(sz_actual<maxConnection);
+                    //assert(sz_actual<maxConnection);
 
 #if FIXED_LENGTH_OUTPUT
                     for(int i=0; i< maxConnection; i++)
