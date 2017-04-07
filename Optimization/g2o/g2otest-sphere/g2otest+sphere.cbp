@@ -34,6 +34,7 @@
 			<Add option="-fexceptions" />
 			<Add directory="/usr/local/include/eigen3" />
 			<Add directory="Thirdparty" />
+			<Add directory="Thirdparty/csparse" />
 		</Compiler>
 		<Linker>
 			<Add library="/usr/local/lib/libg2o_cli.so" />
