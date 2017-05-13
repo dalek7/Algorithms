@@ -3,6 +3,11 @@ Build/
 bin/
 obj/
 
+# Codeblocks
+*.depend
+*.layout
+
+
 # Compiled Object files
 *.slo
 *.lo
