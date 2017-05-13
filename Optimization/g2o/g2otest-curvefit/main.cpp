@@ -1,6 +1,7 @@
+// Simple curve-fitting example
 // based on https://github.com/RainerKuemmerle/g2o/blob/master/g2o/examples/data_fitting/curve_fit.cpp
 // Tested
-// - Ubuntu 14.04
+// - Ubuntu 14.04 / 16.10
 // - OS X (10.9.5)
 //   : brew install homebrew/science/g2o
 // by Seung-Chan Kim
@@ -191,7 +192,7 @@ int main(int argc, char** argv)
     // clean up
     delete[] points;
 
-    
+
     return 0;
 }
 
