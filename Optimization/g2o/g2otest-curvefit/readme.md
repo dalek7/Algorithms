@@ -2,7 +2,7 @@
 - library used : g2o
 - Test environment
   * OS X Mavericks (XCODE)
-  * Ubuntu 14.04 (Code::Blocks)
+  * Ubuntu 14.04 / 16.10 (Code::Blocks)
 
 - Plot : Matlab 2015b
 
