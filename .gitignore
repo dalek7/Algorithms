@@ -3,6 +3,9 @@ Build/
 bin/
 obj/
 
+# MAC stuff
+.DS_Store
+
 # Codeblocks
 *.depend
 *.layout
