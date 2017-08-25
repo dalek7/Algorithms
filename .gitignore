@@ -8,12 +8,18 @@ Thumbs.db
 .DS_Store
 ._.DS_Store
 ._*
-
+__MACOSX
 
 # Codeblocks
 *.depend
 *.layout
 
+# MFC-related
+*.sdf
+*.ncb
+ipch/
+Debug/
+Release/
 
 # Compiled Object files
 *.slo
@@ -43,3 +49,6 @@ Thumbs.db
 *.exe
 *.out
 *.app
+
+# Python-related
+*.pyc
