@@ -3,6 +3,9 @@ Build/
 bin/
 obj/
 
+# IDE
+.idea/ 
+
 # OS-dependent
 Thumbs.db
 .DS_Store
